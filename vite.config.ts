@@ -17,4 +17,23 @@ export default defineConfig(({ mode }) => ({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  build: {
+    // If you are strictly using Rolldown (Vite 6+ experimental):
+    // rolldownOptions: { ... }
+
+    // Standard approach (works for Rollup and usually maps to Rolldown):
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            // Put all third-party dependencies into a 'vendor' chunk
+            return 'vendor'
+
+            // Or, split a specific heavy library into its own chunk:
+            // if (id.includes('lodash')) return 'lodash';
+          }
+        },
+      },
+    },
+  },
 }))
