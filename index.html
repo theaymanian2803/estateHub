@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EstateHub — Find Your Dream Home | Premium Real Estate Listings</title>
+    <meta
+      name="description"
+      content="Browse thousands of premium real estate listings. Find houses, apartments, villas & more. List your property and reach 25,000+ active buyers on EstateHub." />
+    <meta name="author" content="EstateHub" />
+
+    <meta property="og:title" content="EstateHub — Find Your Dream Home" />
+    <meta
+      property="og:description"
+      content="Browse thousands of premium real estate listings. Find your perfect property today." />
+    <meta property="og:type" content="website" />
+
+    <meta name="twitter:site" content="@EstateHub" />
+  </head>
+
+  <body>
+    <script>
+      ;(function () {
+        var t = localStorage.getItem('theme')
+        if (t === 'dark' || (!t && matchMedia('(prefers-color-scheme:dark)').matches))
+          document.documentElement.classList.add('dark')
+      })()
+    </script>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

@@ -1,0 +1,233 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 30 18% 94%;
+    --foreground: 25 35% 18%;
+
+    --card: 30 15% 91%;
+    --card-foreground: 25 35% 18%;
+
+    --popover: 30 15% 91%;
+    --popover-foreground: 25 35% 18%;
+
+    --primary: 25 40% 20%;
+    --primary-foreground: 30 25% 92%;
+
+    --secondary: 30 15% 88%;
+    --secondary-foreground: 25 40% 20%;
+
+    --muted: 30 12% 85%;
+    --muted-foreground: 25 15% 45%;
+
+    --accent: 25 65% 45%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 30 25% 98%;
+
+    --border: 30 12% 82%;
+    --input: 30 12% 82%;
+    --ring: 25 65% 45%;
+
+    --radius: 1rem;
+
+    --sidebar-background: 25 35% 16%;
+    --sidebar-foreground: 30 15% 88%;
+    --sidebar-primary: 25 65% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 25 35% 24%;
+    --sidebar-accent-foreground: 30 15% 88%;
+    --sidebar-border: 25 30% 26%;
+    --sidebar-ring: 25 65% 50%;
+
+    /* Chocolate tokens */
+    --chocolate: 25 65% 45%;
+    --chocolate-light: 25 55% 58%;
+    --chocolate-dark: 25 50% 30%;
+    --cocoa: 25 40% 20%;
+    --cocoa-dark: 25 45% 12%;
+    --cocoa-light: 25 30% 35%;
+    --caramel: 35 80% 55%;
+    --cream: 35 40% 90%;
+    --latte: 30 25% 78%;
+
+    --font-display: 'Cormorant Garamond', serif;
+    --font-body: 'DM Sans', sans-serif;
+
+    /* Neumorphic shadows */
+    --neu-shadow: 6px 6px 14px hsl(25 20% 80% / 0.7), -6px -6px 14px hsl(30 30% 100% / 0.8);
+    --neu-shadow-sm: 3px 3px 8px hsl(25 20% 80% / 0.6), -3px -3px 8px hsl(30 30% 100% / 0.7);
+    --neu-shadow-lg: 10px 10px 24px hsl(25 20% 78% / 0.7), -10px -10px 24px hsl(30 30% 100% / 0.85);
+    --neu-inset:
+      inset 3px 3px 8px hsl(25 20% 80% / 0.6), inset -3px -3px 8px hsl(30 30% 100% / 0.7);
+    --neu-pressed:
+      inset 4px 4px 10px hsl(25 20% 78% / 0.7), inset -4px -4px 10px hsl(30 30% 100% / 0.6);
+
+    --shadow-soft: 0 2px 15px -3px hsl(25 40% 20% / 0.08);
+    --shadow-card: var(--neu-shadow);
+    --shadow-elevated: var(--neu-shadow-lg);
+  }
+
+  .dark {
+    --background: 25 30% 8%;
+    --foreground: 30 20% 95%;
+    --card: 25 28% 12%;
+    --card-foreground: 30 20% 95%;
+    --popover: 25 28% 12%;
+    --popover-foreground: 30 20% 95%;
+    --primary: 25 65% 55%;
+    --primary-foreground: 25 30% 8%;
+    --secondary: 25 25% 18%;
+    --secondary-foreground: 30 20% 95%;
+    --muted: 25 25% 18%;
+    --muted-foreground: 25 15% 65%;
+    --accent: 25 70% 55%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 62% 30%;
+    --destructive-foreground: 30 25% 98%;
+    --border: 25 25% 22%;
+    --input: 25 25% 22%;
+    --ring: 25 65% 55%;
+
+    --neu-shadow: 6px 6px 14px hsl(25 30% 5% / 0.7), -6px -6px 14px hsl(25 25% 18% / 0.4);
+    --neu-shadow-sm: 3px 3px 8px hsl(25 30% 5% / 0.6), -3px -3px 8px hsl(25 25% 18% / 0.35);
+    --neu-shadow-lg: 10px 10px 24px hsl(25 30% 4% / 0.7), -10px -10px 24px hsl(25 25% 18% / 0.4);
+    --neu-inset: inset 3px 3px 8px hsl(25 30% 5% / 0.5), inset -3px -3px 8px hsl(25 25% 18% / 0.3);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-body antialiased text-[15px] lg:text-base;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-display);
+  }
+}
+
+@layer components {
+  /* Neumorphic cards */
+  .neu-card {
+    @apply rounded-2xl bg-background;
+    box-shadow: var(--neu-shadow);
+  }
+
+  .neu-card-sm {
+    @apply rounded-xl bg-background;
+    box-shadow: var(--neu-shadow-sm);
+  }
+
+  .neu-card-lg {
+    @apply rounded-3xl bg-background;
+    box-shadow: var(--neu-shadow-lg);
+  }
+
+  .neu-pressed {
+    @apply rounded-xl bg-background;
+    box-shadow: var(--neu-inset);
+  }
+
+  .neu-inset {
+    @apply rounded-xl;
+    box-shadow: var(--neu-inset);
+  }
+
+  .neu-button {
+    @apply rounded-xl bg-background px-6 py-3 font-medium transition-all duration-200;
+    box-shadow: var(--neu-shadow-sm);
+  }
+
+  .neu-button:hover {
+    box-shadow: var(--neu-shadow);
+  }
+
+  .neu-button:active {
+    box-shadow: var(--neu-inset);
+  }
+
+  /* Gradient utilities */
+  .gradient-chocolate {
+    background: linear-gradient(135deg, hsl(var(--cocoa-dark)), hsl(var(--cocoa)));
+  }
+
+  .gradient-caramel {
+    background: linear-gradient(135deg, hsl(var(--chocolate)), hsl(var(--caramel)));
+  }
+
+  .text-gradient-chocolate {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, hsl(var(--chocolate)), hsl(var(--caramel)));
+  }
+
+  /* Glass card */
+  .glass-card {
+    @apply bg-background/70 backdrop-blur-xl border border-border/30;
+    box-shadow: var(--neu-shadow);
+  }
+
+  /* Decorative shapes */
+  .shape-blob {
+    border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+  }
+
+  .shape-blob-2 {
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+  }
+
+  .shape-blob-3 {
+    border-radius: 40% 60% 60% 40% / 50% 40% 60% 50%;
+  }
+
+  .shape-circle-soft {
+    @apply rounded-full;
+    box-shadow: var(--neu-shadow);
+  }
+
+  /* Section styling */
+  .section-padding {
+    @apply py-24 md:py-32;
+  }
+
+  /* Floating animation */
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0px) rotate(0deg);
+    }
+    50% {
+      transform: translateY(-20px) rotate(2deg);
+    }
+  }
+
+  @keyframes float-slow {
+    0%,
+    100% {
+      transform: translateY(0px) rotate(0deg);
+    }
+    50% {
+      transform: translateY(-12px) rotate(-1deg);
+    }
+  }
+
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .animate-float-slow {
+    animation: float-slow 8s ease-in-out infinite;
+  }
+}
