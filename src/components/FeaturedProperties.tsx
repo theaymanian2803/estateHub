@@ -1,13 +1,13 @@
-import { Link } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import PropertyCard from "./PropertyCard";
-import { properties } from "@/data/mockData";
-import { useTranslation } from "react-i18next";
+import { Link } from 'react-router-dom'
+import { ArrowRight } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import PropertyCard from './PropertyCard'
+import { properties } from '@/data/mockData'
+import { useTranslation } from 'react-i18next'
 
 export default function FeaturedProperties() {
-  const featured = properties.filter((p) => p.featured);
-  const { t } = useTranslation();
+  const featured = properties.filter((p) => p.featured)
+  const { t } = useTranslation()
 
   return (
     <section className="section-padding bg-secondary/20 relative overflow-hidden">
@@ -17,28 +17,32 @@ export default function FeaturedProperties() {
       <div className="container mx-auto px-4 relative z-10">
         <div className="mb-14 text-center">
           <span className="neu-card-sm inline-block px-5 py-2 text-sm font-semibold uppercase tracking-wider text-accent">
-            {t("featured.badge")}
+            {t('featured.badge')}
           </span>
           <h2 className="mt-6 font-display text-3xl font-bold text-foreground md:text-5xl">
-            {t("featured.title")} <span className="text-gradient-chocolate">{t("featured.titleHighlight")}</span>
+            {t('featured.title')}{' '}
+            <span className="text-gradient-chocolate">{t('featured.titleHighlight')}</span>
           </h2>
-          <p className="mx-auto mt-4 max-w-xl text-muted-foreground">
-            {t("featured.subtitle")}
-          </p>
+          <p className="mx-auto mt-4 max-w-xl text-muted-foreground">{t('featured.subtitle')}</p>
         </div>
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           {featured.map((p) => (
             <PropertyCard key={p.id} property={p} />
           ))}
         </div>
+
+        {/* UPDATED BUTTON SECTION */}
         <div className="mt-14 text-center">
-          <Button size="lg" className="neu-button text-accent hover:text-accent-foreground hover:bg-accent border-0" asChild>
+          <Button
+            size="lg"
+            className="gradient-caramel text-white hover:opacity-90 border-0 rounded-xl px-8 shadow-md transition-opacity"
+            asChild>
             <Link to="/search">
-              {t("featured.viewAll")} <ArrowRight className="ml-2 h-4 w-4" />
+              {t('featured.viewAll')} <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
           </Button>
         </div>
       </div>
     </section>
-  );
+  )
 }

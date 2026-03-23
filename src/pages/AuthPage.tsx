@@ -113,15 +113,17 @@ export default function AuthPage() {
   })
 
   const onSubmit = async (data: AuthFormValues) => {
+    // CRITICAL SECURITY FIX: REMOVED CONSOLE LOGGING OF PASSWORD
     setIsLoading(true)
     try {
-      // TODO: Add your Supabase Auth logic here
-      console.log('Form Data:', data, 'Mode:', isLogin ? 'Login' : 'Register')
+      // TODO: Add your actual Supabase Auth login/signup logic here
+      // console.log("Login Attempt Email:", data.email); // Safe to log
 
       // Simulating a network request
       await new Promise((resolve) => setTimeout(resolve, 1500))
     } catch (error) {
-      console.error(error)
+      // Handle error without console logging sensitive data
+      console.error('Login failed', error)
     } finally {
       setIsLoading(false)
     }
@@ -145,7 +147,7 @@ export default function AuthPage() {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {/* Email Input */}
           <div className="space-y-2">
-            <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-zinc-900 dark:text-zinc-50">
+            <label className="text-sm font-semibold leading-none text-zinc-900 dark:text-zinc-50">
               Email
             </label>
             <div className="relative">
@@ -168,7 +170,7 @@ export default function AuthPage() {
 
           {/* Password Input */}
           <div className="space-y-2">
-            <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-zinc-900 dark:text-zinc-50">
+            <label className="text-sm font-semibold leading-none text-zinc-900 dark:text-zinc-50">
               Password
             </label>
             <div className="relative">
@@ -199,11 +201,11 @@ export default function AuthPage() {
             )}
           </div>
 
-          {/* Submit Button */}
+          {/* Submit Button - Updated to match new styling */}
           <button
             type="submit"
             disabled={isLoading}
-            className="inline-flex items-center justify-center w-full rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 disabled:pointer-events-none disabled:opacity-50 bg-zinc-900 text-zinc-50 hover:bg-zinc-900/90 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-50/90 h-10 px-4 py-2">
+            className="inline-flex items-center justify-center rounded-xl text-sm font-bold transition-opacity focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 gradient-caramel text-white hover:opacity-90 h-11 px-6 shadow-md w-full">
             {isLoading ? <SpinnerIcon className="w-5 h-5 mr-2" /> : null}
             {isLoading ? 'Please wait...' : isLogin ? 'Sign In' : 'Sign Up'}
           </button>
