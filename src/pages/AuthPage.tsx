@@ -3,12 +3,27 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 import { useNavigate } from 'react-router-dom'
-import { supabase } from '@/integrations/supabase/client'
+import { useAuth } from '@/hooks/useAuth' // Using your actual auth hook!
 import { useToast } from '@/hooks/use-toast'
 
 // ---------------------------------------------------------------------------
-// Inline SVG Icons (Replacing lucide-react to prevent your build errors)
+// Inline SVG Icons
 // ---------------------------------------------------------------------------
+const UserIcon = ({ className = 'w-5 h-5' }) => (
+  <svg
+    className={className}
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.5"
+    strokeLinecap="round"
+    strokeLinejoin="round">
+    <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+    <circle cx="12" cy="7" r="4" />
+  </svg>
+)
+
 const MailIcon = ({ className = 'w-5 h-5' }) => (
   <svg
     className={className}
@@ -95,6 +110,7 @@ const SpinnerIcon = ({ className = 'w-5 h-5' }) => (
 // Schema & Component
 // ---------------------------------------------------------------------------
 const authSchema = z.object({
+  fullName: z.string().optional(), // Optional in schema, enforced in logic for Sign Up
   email: z.string().email({ message: 'Please enter a valid email address' }),
   password: z.string().min(6, { message: 'Password must be at least 6 characters' }),
 })
@@ -107,43 +123,46 @@ export default function AuthPage() {
   const [isLoading, setIsLoading] = useState(false)
 
   const navigate = useNavigate()
+  const { signIn, signUp } = useAuth() // Pulling directly from your context
   const { toast } = useToast()
 
   const {
     register,
     handleSubmit,
+    setError,
+    clearErrors,
     formState: { errors },
   } = useForm<AuthFormValues>({
     resolver: zodResolver(authSchema),
   })
 
   const onSubmit = async (data: AuthFormValues) => {
+    clearErrors()
     setIsLoading(true)
 
-    // SECURITY FIX: No console.logs of passwords here.
     try {
       if (isLogin) {
-        // REAL SUPABASE LOGIN LOGIC
-        const { error } = await supabase.auth.signInWithPassword({
-          email: data.email,
-          password: data.password,
-        })
-
+        // --- SIGN IN FLOW ---
+        const { error } = await signIn(data.email, data.password)
         if (error) throw error
-        navigate('/') // Navigate to home or dashboard after successful login
+
+        navigate('/') // Navigate home on success
       } else {
-        // REAL SUPABASE SIGNUP LOGIC
-        const { error } = await supabase.auth.signUp({
-          email: data.email,
-          password: data.password,
-        })
+        // --- SIGN UP FLOW ---
+        if (!data.fullName || data.fullName.trim().length < 2) {
+          setError('fullName', { message: 'Full name is required to sign up' })
+          setIsLoading(false)
+          return
+        }
 
+        const { error } = await signUp(data.email, data.password, data.fullName)
         if (error) throw error
+
         toast({
           title: 'Account created!',
-          description: 'Please check your email to verify your account.',
+          description: 'Welcome! You can now log in with your credentials.',
         })
-        setIsLogin(true) // Switch back to login view
+        setIsLogin(true) // Switch to login screen after successful signup
       }
     } catch (error: any) {
       toast({
@@ -154,6 +173,12 @@ export default function AuthPage() {
     } finally {
       setIsLoading(false)
     }
+  }
+
+  // Toggle between Login and Sign Up modes
+  const toggleMode = () => {
+    setIsLogin(!isLogin)
+    clearErrors()
   }
 
   return (
@@ -171,6 +196,27 @@ export default function AuthPage() {
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+          {/* CONDITIONAL FULL NAME INPUT (Only shows on Sign Up) */}
+          {!isLogin && (
+            <div className="space-y-1.5 animate-in fade-in slide-in-from-top-2">
+              <label className="text-sm font-medium text-zinc-800">Full Name</label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-zinc-400">
+                  <UserIcon className="w-4 h-4" />
+                </div>
+                <input
+                  {...register('fullName')}
+                  type="text"
+                  placeholder="e.g. Samir Oulkhir"
+                  className="flex h-11 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 pl-10 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-1 focus:ring-zinc-900 focus:border-zinc-900 transition-colors"
+                />
+              </div>
+              {errors.fullName && (
+                <p className="text-xs font-medium text-red-500">{errors.fullName.message}</p>
+              )}
+            </div>
+          )}
+
           {/* Email Input */}
           <div className="space-y-1.5">
             <label className="text-sm font-medium text-zinc-800">Email</label>
@@ -233,7 +279,7 @@ export default function AuthPage() {
         <div className="mt-8 text-center text-sm text-zinc-500">
           {isLogin ? "Don't have an account? " : 'Already have an account? '}
           <button
-            onClick={() => setIsLogin(!isLogin)}
+            onClick={toggleMode}
             className="font-semibold text-zinc-900 hover:underline focus:outline-none">
             {isLogin ? 'Sign up' : 'Log in'}
           </button>
