@@ -16,7 +16,6 @@ import { useTranslation } from 'react-i18next'
 
 type Tab = 'profile' | 'saved' | 'listings' | 'subscription'
 
-// 1. ADDED avatar_url TO THE INTERFACE
 interface ProfileData {
   full_name: string | null
   email: string | null
@@ -31,7 +30,6 @@ export default function UserProfile() {
   const { t } = useTranslation()
 
   const [tab, setTab] = useState<Tab>('profile')
-  // 2. ADDED avatar_url TO INITIAL STATE
   const [profile, setProfile] = useState<ProfileData>({
     full_name: null,
     email: null,
@@ -52,7 +50,6 @@ export default function UserProfile() {
   useEffect(() => {
     if (!user) return
     const fetchProfile = async () => {
-      // 3. ADDED avatar_url TO THE SUPABASE SELECT QUERY
       const { data } = await supabase
         .from('profiles')
         .select('full_name, email, avatar_url')
@@ -142,19 +139,34 @@ export default function UserProfile() {
     fetchListings()
   }, [user])
 
+  // --- UPDATED SAVE FUNCTION ---
   const handleSaveProfile = async () => {
     if (!user) return
-    const { error } = await supabase
+
+    // 1. Update your database profile table
+    const { error: profileError } = await supabase
       .from('profiles')
       .update({ full_name: editName })
       .eq('id', user.id)
-    if (error) {
-      toast({ title: 'Error', description: error.message, variant: 'destructive' })
-    } else {
-      setProfile((prev) => ({ ...prev, full_name: editName }))
-      setEditingProfile(false)
-      toast({ title: t('profile.profileUpdated') })
+
+    if (profileError) {
+      toast({ title: 'Error', description: profileError.message, variant: 'destructive' })
+      return
     }
+
+    // 2. Update the Supabase Auth user_metadata (This triggers the Navbar update)
+    const { error: authError } = await supabase.auth.updateUser({
+      data: { full_name: editName },
+    })
+
+    if (authError) {
+      console.error('Failed to update auth metadata:', authError)
+    }
+
+    // 3. Update local UI state
+    setProfile((prev) => ({ ...prev, full_name: editName }))
+    setEditingProfile(false)
+    toast({ title: t('profile.profileUpdated') })
   }
 
   const handleUnsave = async (propertyId: string) => {
@@ -185,7 +197,6 @@ export default function UserProfile() {
       <Navbar />
       <div className="container mx-auto px-4 pb-16 pt-24">
         <div className="mb-8 flex items-center gap-4">
-          {/* 4. UPDATED THE AVATAR DISPLAY UI */}
           <div className="flex h-16 w-16 items-center justify-center rounded-full bg-accent/10 text-accent overflow-hidden border-2 border-border">
             {profile.avatar_url ? (
               <img
