@@ -262,9 +262,6 @@ export default function Navbar() {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
                 <DropdownMenuItem asChild>
-                  <Link to="/profile">{t('nav.myProfile')}</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
                   <Link to="/dashboard">{t('nav.sellerDashboard')}</Link>
                 </DropdownMenuItem>
                 {isAdmin && (
