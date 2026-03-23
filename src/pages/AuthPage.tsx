@@ -2,10 +2,12 @@ import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
-import { motion } from 'framer-motion'
+import { useNavigate } from 'react-router-dom'
+import { supabase } from '@/integrations/supabase/client'
+import { useToast } from '@/hooks/use-toast'
 
 // ---------------------------------------------------------------------------
-// Inline SVG Icons (Replacing lucide-react)
+// Inline SVG Icons (Replacing lucide-react to prevent your build errors)
 // ---------------------------------------------------------------------------
 const MailIcon = ({ className = 'w-5 h-5' }) => (
   <svg
@@ -14,7 +16,7 @@ const MailIcon = ({ className = 'w-5 h-5' }) => (
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
-    strokeWidth="2"
+    strokeWidth="1.5"
     strokeLinecap="round"
     strokeLinejoin="round">
     <rect width="20" height="16" x="2" y="4" rx="2" />
@@ -29,7 +31,7 @@ const LockIcon = ({ className = 'w-5 h-5' }) => (
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
-    strokeWidth="2"
+    strokeWidth="1.5"
     strokeLinecap="round"
     strokeLinejoin="round">
     <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
@@ -44,7 +46,7 @@ const EyeIcon = ({ className = 'w-5 h-5' }) => (
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
-    strokeWidth="2"
+    strokeWidth="1.5"
     strokeLinecap="round"
     strokeLinejoin="round">
     <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
@@ -59,7 +61,7 @@ const EyeOffIcon = ({ className = 'w-5 h-5' }) => (
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
-    strokeWidth="2"
+    strokeWidth="1.5"
     strokeLinecap="round"
     strokeLinejoin="round">
     <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" />
@@ -90,7 +92,7 @@ const SpinnerIcon = ({ className = 'w-5 h-5' }) => (
 )
 
 // ---------------------------------------------------------------------------
-// Schema & Form Component
+// Schema & Component
 // ---------------------------------------------------------------------------
 const authSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email address' }),
@@ -104,6 +106,9 @@ export default function AuthPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
 
+  const navigate = useNavigate()
+  const { toast } = useToast()
+
   const {
     register,
     handleSubmit,
@@ -113,113 +118,127 @@ export default function AuthPage() {
   })
 
   const onSubmit = async (data: AuthFormValues) => {
-    // CRITICAL SECURITY FIX: REMOVED CONSOLE LOGGING OF PASSWORD
     setIsLoading(true)
-    try {
-      // TODO: Add your actual Supabase Auth login/signup logic here
-      // console.log("Login Attempt Email:", data.email); // Safe to log
 
-      // Simulating a network request
-      await new Promise((resolve) => setTimeout(resolve, 1500))
-    } catch (error) {
-      // Handle error without console logging sensitive data
-      console.error('Login failed', error)
+    // SECURITY FIX: No console.logs of passwords here.
+    try {
+      if (isLogin) {
+        // REAL SUPABASE LOGIN LOGIC
+        const { error } = await supabase.auth.signInWithPassword({
+          email: data.email,
+          password: data.password,
+        })
+
+        if (error) throw error
+        navigate('/') // Navigate to home or dashboard after successful login
+      } else {
+        // REAL SUPABASE SIGNUP LOGIC
+        const { error } = await supabase.auth.signUp({
+          email: data.email,
+          password: data.password,
+        })
+
+        if (error) throw error
+        toast({
+          title: 'Account created!',
+          description: 'Please check your email to verify your account.',
+        })
+        setIsLogin(true) // Switch back to login view
+      }
+    } catch (error: any) {
+      toast({
+        title: 'Authentication Error',
+        description: error.message || 'Something went wrong.',
+        variant: 'destructive',
+      })
     } finally {
       setIsLoading(false)
     }
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 dark:bg-zinc-950 p-4">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-md space-y-8 rounded-2xl bg-white dark:bg-zinc-900 p-8 shadow-xl border border-zinc-200 dark:border-zinc-800">
-        <div className="text-center">
-          <h2 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
+    <div className="flex min-h-screen items-center justify-center bg-[#fafafa]">
+      <div className="w-full max-w-[420px] rounded-2xl bg-white p-10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-zinc-100">
+        <div className="text-center mb-8">
+          <h2 className="font-display text-3xl font-semibold text-zinc-900 tracking-tight">
             {isLogin ? 'Welcome back' : 'Create an account'}
           </h2>
-          <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-            {isLogin ? 'Enter your credentials to access your account.' : 'Sign up to get started.'}
+          <p className="mt-2 text-sm text-zinc-500">
+            {isLogin
+              ? 'Enter your credentials to access your account.'
+              : 'Sign up to get started with your account.'}
           </p>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
           {/* Email Input */}
-          <div className="space-y-2">
-            <label className="text-sm font-semibold leading-none text-zinc-900 dark:text-zinc-50">
-              Email
-            </label>
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium text-zinc-800">Email</label>
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-zinc-500">
-                <MailIcon className="w-5 h-5" />
+              <div className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-zinc-400">
+                <MailIcon className="w-4 h-4" />
               </div>
               <input
                 {...register('email')}
                 type="email"
                 placeholder="you@example.com"
-                className="flex h-10 w-full rounded-md border border-zinc-300 dark:border-zinc-700 bg-transparent px-3 py-2 pl-10 text-sm placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-400 dark:focus:ring-zinc-600 disabled:cursor-not-allowed disabled:opacity-50 text-zinc-900 dark:text-zinc-100"
+                className="flex h-11 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 pl-10 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-1 focus:ring-zinc-900 focus:border-zinc-900 transition-colors"
               />
             </div>
             {errors.email && (
-              <p className="text-sm font-medium text-red-500 dark:text-red-400">
-                {errors.email.message}
-              </p>
+              <p className="text-xs font-medium text-red-500">{errors.email.message}</p>
             )}
           </div>
 
           {/* Password Input */}
-          <div className="space-y-2">
-            <label className="text-sm font-semibold leading-none text-zinc-900 dark:text-zinc-50">
-              Password
-            </label>
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium text-zinc-800">Password</label>
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-zinc-500">
-                <LockIcon className="w-5 h-5" />
+              <div className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-zinc-400">
+                <LockIcon className="w-4 h-4" />
               </div>
               <input
                 {...register('password')}
                 type={showPassword ? 'text' : 'password'}
                 placeholder="••••••••"
-                className="flex h-10 w-full rounded-md border border-zinc-300 dark:border-zinc-700 bg-transparent px-3 py-2 pl-10 pr-10 text-sm placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-400 dark:focus:ring-zinc-600 disabled:cursor-not-allowed disabled:opacity-50 text-zinc-900 dark:text-zinc-100"
+                className="flex h-11 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 pl-10 pr-10 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-1 focus:ring-zinc-900 focus:border-zinc-900 transition-colors"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute inset-y-0 right-0 flex items-center pr-3 text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 focus:outline-none">
+                className="absolute inset-y-0 right-0 flex items-center pr-3.5 text-zinc-400 hover:text-zinc-600 focus:outline-none">
                 {showPassword ? (
-                  <EyeOffIcon className="w-5 h-5" />
+                  <EyeOffIcon className="w-4 h-4" />
                 ) : (
-                  <EyeIcon className="w-5 h-5" />
+                  <EyeIcon className="w-4 h-4" />
                 )}
               </button>
             </div>
             {errors.password && (
-              <p className="text-sm font-medium text-red-500 dark:text-red-400">
-                {errors.password.message}
-              </p>
+              <p className="text-xs font-medium text-red-500">{errors.password.message}</p>
             )}
           </div>
 
-          {/* Submit Button - Updated to match new styling */}
+          {/* Submit Button */}
           <button
             type="submit"
             disabled={isLoading}
-            className="inline-flex items-center justify-center rounded-xl text-sm font-bold transition-opacity focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 gradient-caramel text-white hover:opacity-90 h-11 px-6 shadow-md w-full">
-            {isLoading ? <SpinnerIcon className="w-5 h-5 mr-2" /> : null}
+            className="mt-2 flex w-full items-center justify-center rounded-lg bg-[#18181b] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none">
+            {isLoading ? <SpinnerIcon className="mr-2 h-4 w-4" /> : null}
             {isLoading ? 'Please wait...' : isLogin ? 'Sign In' : 'Sign Up'}
           </button>
         </form>
 
-        <div className="mt-6 text-center text-sm text-zinc-600 dark:text-zinc-400">
+        {/* Footer Toggle */}
+        <div className="mt-8 text-center text-sm text-zinc-500">
           {isLogin ? "Don't have an account? " : 'Already have an account? '}
           <button
             onClick={() => setIsLogin(!isLogin)}
-            className="font-semibold text-zinc-900 dark:text-zinc-50 hover:underline focus:outline-none">
+            className="font-semibold text-zinc-900 hover:underline focus:outline-none">
             {isLogin ? 'Sign up' : 'Log in'}
           </button>
         </div>
-      </motion.div>
+      </div>
     </div>
   )
 }
