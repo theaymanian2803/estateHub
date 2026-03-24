@@ -33,7 +33,7 @@ import ReviewSection from '@/components/ReviewSection'
 import PropertyMap from '@/components/PropertyMap'
 import Lightbox from '@/components/Lightbox'
 import MortgageCalculator from '@/components/MortgageCalculator'
-import { properties as mockProperties, reviews, formatPrice, type Property } from '@/data/mockData'
+import { properties as mockProperties, formatPrice, type Property } from '@/data/mockData'
 import { supabase } from '@/integrations/supabase/client'
 import { useTranslation } from 'react-i18next'
 
@@ -75,8 +75,8 @@ export default function PropertyDetail() {
   const [currentImage, setCurrentImage] = useState(0)
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const [seller, setSeller] = useState<SellerInfo | null>(null)
+  const [propertyReviews, setPropertyReviews] = useState<any[]>([])
 
-  // --- NEW: Contact Form State ---
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [contactForm, setContactForm] = useState({
     name: '',
@@ -88,50 +88,102 @@ export default function PropertyDetail() {
   const { saved, toggle, isLoggedIn } = useSaveProperty(property?.id ?? '')
 
   useEffect(() => {
-    const fetchProperty = async () => {
-      const { data } = await supabase.from('properties').select('*').eq('id', id!).single()
-      if (data) {
-        setProperty({
-          id: data.id,
-          title: data.title,
-          description: data.description || '',
-          price: data.price,
-          location: data.location || '',
-          city: data.city || '',
-          state: data.state || '',
-          beds: data.beds || 0,
-          baths: data.baths || 0,
-          sqft: data.sqft || 0,
-          type: (data.type as Property['type']) || 'House',
-          amenities: data.amenities || [],
-          images: data.images && data.images.length > 0 ? data.images : ['/placeholder.svg'],
-          featured: data.featured || false,
-          sellerId: data.user_id,
-          sellerName: 'Property Owner',
-          createdAt: new Date(data.created_at).toLocaleDateString(),
-          views: data.views || 0,
-          lot_size: (data as any).lot_size || 0,
-          year_built: (data as any).year_built,
-          parking: (data as any).parking || 0,
-          stories: (data as any).stories || 1,
-          heating: (data as any).heating || '',
-          cooling: (data as any).cooling || '',
-          flooring: (data as any).flooring || '',
-          roof: (data as any).roof || '',
-          neighborhood: (data as any).neighborhood || '',
-          zip_code: (data as any).zip_code || '',
-          latitude: (data as any).latitude,
-          longitude: (data as any).longitude,
-          hoa_fee: (data as any).hoa_fee || 0,
-          property_style: (data as any).property_style || '',
-        })
-      } else {
+    const fetchPropertyAndReviews = async () => {
+      if (!id) return
+
+      // 1. Check if the ID is a valid Supabase UUID format
+      const isUuid =
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id)
+
+      // Helper function for mock fallback
+      const useMockData = () => {
         const mock = mockProperties.find((p) => p.id === id)
         if (mock) setProperty({ ...mock, latitude: null, longitude: null })
         else setProperty(null)
       }
+
+      if (isUuid) {
+        try {
+          // 2. Fetch Real Property from Supabase
+          const { data: propData, error: propError } = await supabase
+            .from('properties')
+            .select('*')
+            .eq('id', id)
+            .single()
+
+          if (propError) throw propError
+
+          if (propData) {
+            setProperty({
+              id: propData.id,
+              title: propData.title,
+              description: propData.description || '',
+              price: propData.price,
+              location: propData.location || '',
+              city: propData.city || '',
+              state: propData.state || '',
+              beds: propData.beds || 0,
+              baths: propData.baths || 0,
+              sqft: propData.sqft || 0,
+              type: (propData.type as Property['type']) || 'House',
+              amenities: propData.amenities || [],
+              images:
+                propData.images && propData.images.length > 0
+                  ? propData.images
+                  : ['/placeholder.svg'],
+              featured: propData.featured || false,
+              sellerId: propData.user_id,
+              sellerName: 'Property Owner',
+              createdAt: new Date(propData.created_at).toLocaleDateString(),
+              views: propData.views || 0,
+              lot_size: (propData as any).lot_size || 0,
+              year_built: (propData as any).year_built,
+              parking: (propData as any).parking || 0,
+              stories: (propData as any).stories || 1,
+              heating: (propData as any).heating || '',
+              cooling: (propData as any).cooling || '',
+              flooring: (propData as any).flooring || '',
+              roof: (propData as any).roof || '',
+              neighborhood: (propData as any).neighborhood || '',
+              zip_code: (propData as any).zip_code || '',
+              latitude: (propData as any).latitude,
+              longitude: (propData as any).longitude,
+              hoa_fee: (propData as any).hoa_fee || 0,
+              property_style: (propData as any).property_style || '',
+            })
+          }
+
+          // 3. Fetch Real Reviews from Supabase
+          const { data: revData, error: revError } = await supabase
+            .from('reviews')
+            .select('*, profiles(full_name)')
+            .eq('property_id', id)
+            .order('created_at', { ascending: false })
+
+          if (revError) {
+            console.error('Review fetch error:', revError.message)
+          } else if (revData) {
+            const mappedReviews = revData.map((r: any) => ({
+              id: r.id,
+              propertyId: r.property_id,
+              userName: r.profiles?.full_name || 'Verified User',
+              rating: r.rating,
+              comment: r.comment,
+              createdAt: new Date(r.created_at).toISOString().slice(0, 10),
+            }))
+            setPropertyReviews(mappedReviews)
+          }
+        } catch (error) {
+          console.error('Failed to fetch from Supabase, falling back to mock:', error)
+          useMockData()
+        }
+      } else {
+        // ID is not a UUID (It's a mock property like "1", "2")
+        useMockData()
+      }
     }
-    if (id) fetchProperty()
+
+    fetchPropertyAndReviews()
   }, [id])
 
   useEffect(() => {
@@ -151,7 +203,12 @@ export default function PropertyDetail() {
 
   useEffect(() => {
     if (id) {
-      supabase.rpc('increment_property_views', { _property_id: id })
+      // Only try to increment views if it's a valid Supabase UUID
+      const isUuid =
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id)
+      if (isUuid) {
+        supabase.rpc('increment_property_views', { _property_id: id })
+      }
     }
   }, [id])
 
@@ -170,30 +227,26 @@ export default function PropertyDetail() {
     )
   }
 
-  const propertyReviews = reviews.filter((r) => r.propertyId === property.id)
   const hasMultipleImages = property.images.length > 1
   const hasCoords = property.latitude != null && property.longitude != null
 
-  // --- UPDATED: Functional Contact Submission ---
   const handleContact = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
 
     try {
-      // 1. Insert the inquiry into your Supabase database
       const { error } = await supabase.from('inquiries').insert({
         property_id: property.id,
-        seller_id: property.sellerId, // To know who the message is for
+        seller_id: property.sellerId,
         sender_name: contactForm.name,
         sender_email: contactForm.email,
         sender_phone: contactForm.phone,
         message: contactForm.message,
-        status: 'pending', // Gives admins a way to track new vs resolved inquiries
+        status: 'pending',
       })
 
       if (error) throw error
 
-      // 2. Show success toast and clear the form
       toast({ title: t('property.messageSent'), description: t('property.messageSentDesc') })
       setContactForm({ name: '', email: '', phone: '', message: '' })
     } catch (error: any) {
@@ -243,7 +296,6 @@ export default function PropertyDetail() {
           <ArrowLeft className="h-4 w-4" /> {t('property.backToSearch')}
         </Link>
 
-        {/* --- Image Section --- */}
         <div className="relative mt-2 overflow-hidden rounded-xl">
           <img
             src={property.images[currentImage]}
@@ -293,7 +345,6 @@ export default function PropertyDetail() {
           </div>
         )}
 
-        {/* --- Details Section --- */}
         <div className="mt-8 grid gap-8 lg:grid-cols-3">
           <div className="lg:col-span-2 space-y-8">
             <div>
@@ -567,7 +618,6 @@ export default function PropertyDetail() {
                 </div>
               </div>
 
-              {/* --- UPDATED FORM FIELDS --- */}
               <div className="rounded-lg border border-border bg-card p-5">
                 <h3 className="font-display text-lg font-semibold text-foreground">
                   {t('property.contactSeller')}
