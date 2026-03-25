@@ -114,7 +114,7 @@ export default function Navbar() {
   const { t } = useTranslation()
   const { getValue } = useSiteContent()
 
-  const siteName = getValue('navbar_site_name', 'EstateHub')
+  const siteName = getValue('navbar_site_name', 'SamirEstate')
   const logoImage = getValue('navbar_logo_image')
   const ctaText = getValue('navbar_cta_text', t('nav.listProperty'))
 

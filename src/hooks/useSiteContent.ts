@@ -1,53 +1,89 @@
-import { useState, useEffect, useCallback } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useState, useEffect, useCallback } from 'react'
+import { supabase } from '@/integrations/supabase/client'
 
 export interface SiteContentItem {
-  id: string;
-  key: string;
-  value: string;
-  section: string;
-  label: string;
-  sort_order: number;
+  id: string
+  key: string
+  value: string
+  section: string
+  label: string
+  sort_order: number
 }
 
 export interface Testimonial {
-  id: string;
-  name: string;
-  role: string;
-  quote: string;
-  rating: number;
-  avatar: string;
-  sort_order: number;
-  is_active: boolean;
+  id: string
+  name: string
+  role: string
+  quote: string
+  rating: number
+  avatar: string
+  sort_order: number
+  is_active: boolean
+}
+
+// NEW: Global event trigger to sync all instances of this hook across the app
+export const triggerGlobalSiteContentUpdate = () => {
+  window.dispatchEvent(new Event('site-content-updated'))
 }
 
 export function useSiteContent() {
-  const [content, setContent] = useState<SiteContentItem[]>([]);
-  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [content, setContent] = useState<SiteContentItem[]>([])
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([])
+  const [loading, setLoading] = useState(true)
 
   const fetchAll = useCallback(async () => {
     const [contentRes, testimonialsRes] = await Promise.all([
-      supabase.from("site_content").select("*").order("sort_order"),
-      supabase.from("testimonials").select("*").order("sort_order"),
-    ]);
-    setContent((contentRes.data as SiteContentItem[]) || []);
-    setTestimonials((testimonialsRes.data as Testimonial[]) || []);
-    setLoading(false);
-  }, []);
+      supabase.from('site_content').select('*').order('sort_order'),
+      supabase.from('testimonials').select('*').order('sort_order'),
+    ])
+    setContent((contentRes.data as SiteContentItem[]) || [])
+    setTestimonials((testimonialsRes.data as Testimonial[]) || [])
+    setLoading(false)
+  }, [])
 
-  useEffect(() => { fetchAll(); }, [fetchAll]);
+  useEffect(() => {
+    // 1. Fetch initially
+    fetchAll()
 
-  const getValue = useCallback((key: string, fallback = "") => {
-    const item = content.find((c) => c.key === key);
-    return item?.value || fallback;
-  }, [content]);
+    // 2. Listen for global updates (like when AdminLandingControls saves data)
+    const handleGlobalUpdate = () => {
+      fetchAll()
+    }
 
-  const getBySection = useCallback((section: string) => {
-    return content.filter((c) => c.section === section).sort((a, b) => a.sort_order - b.sort_order);
-  }, [content]);
+    window.addEventListener('site-content-updated', handleGlobalUpdate)
 
-  const activeTestimonials = testimonials.filter((t) => t.is_active);
+    // Cleanup listener on unmount
+    return () => {
+      window.removeEventListener('site-content-updated', handleGlobalUpdate)
+    }
+  }, [fetchAll])
 
-  return { content, testimonials, activeTestimonials, loading, getValue, getBySection, refetch: fetchAll };
+  const getValue = useCallback(
+    (key: string, fallback = '') => {
+      const item = content.find((c) => c.key === key)
+      return item?.value || fallback
+    },
+    [content]
+  )
+
+  const getBySection = useCallback(
+    (section: string) => {
+      return content
+        .filter((c) => c.section === section)
+        .sort((a, b) => a.sort_order - b.sort_order)
+    },
+    [content]
+  )
+
+  const activeTestimonials = testimonials.filter((t) => t.is_active)
+
+  return {
+    content,
+    testimonials,
+    activeTestimonials,
+    loading,
+    getValue,
+    getBySection,
+    refetch: fetchAll,
+  }
 }

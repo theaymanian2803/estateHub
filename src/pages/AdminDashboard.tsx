@@ -34,7 +34,7 @@ import { formatPrice } from '@/data/mockData'
 import PropertyForm from '@/components/PropertyForm'
 import AdminListingControls from '@/components/AdminListingControls'
 import AdminLandingControls from '@/components/AdminLandingControls'
-import AdminInquiries from '@/components/AdminInquiries' // Make sure to import the new component
+import AdminInquiries from '@/components/AdminInquiries'
 import { useTranslation } from 'react-i18next'
 
 type Tab =
@@ -46,6 +46,7 @@ type Tab =
   | 'listing-controls'
   | 'landing-page'
   | 'inquiries'
+
 interface PropertyRow {
   id: string
   title: string
@@ -170,7 +171,7 @@ export default function AdminDashboard() {
       icon: Clock,
       count: pendingProperties.length,
     },
-    { id: 'inquiries', label: 'Inquiries', icon: Mail }, // Added the Inquiries tab here
+    { id: 'inquiries', label: 'Inquiries', icon: Mail },
     { id: 'properties', label: t('admin.allProperties'), icon: Home },
     { id: 'users', label: t('admin.users'), icon: Users },
     { id: 'add-property', label: t('admin.addProperty'), icon: Plus },
@@ -383,7 +384,6 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        {/* --- Render the newly imported AdminInquiries component --- */}
         {tab === 'inquiries' && (
           <div className="mt-8">
             <AdminInquiries />
