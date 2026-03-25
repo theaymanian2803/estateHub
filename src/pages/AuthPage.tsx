@@ -2,8 +2,8 @@ import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
-import { useNavigate } from 'react-router-dom'
-import { useAuth } from '@/hooks/useAuth' // Using your actual auth hook!
+import { useNavigate, Link } from 'react-router-dom'
+import { useAuth } from '@/hooks/useAuth'
 import { useToast } from '@/hooks/use-toast'
 
 // ---------------------------------------------------------------------------
@@ -106,11 +106,26 @@ const SpinnerIcon = ({ className = 'w-5 h-5' }) => (
   </svg>
 )
 
+const ArrowLeftIcon = ({ className = 'w-5 h-5' }) => (
+  <svg
+    className={className}
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round">
+    <path d="m12 19-7-7 7-7" />
+    <path d="M19 12H5" />
+  </svg>
+)
+
 // ---------------------------------------------------------------------------
 // Schema & Component
 // ---------------------------------------------------------------------------
 const authSchema = z.object({
-  fullName: z.string().optional(), // Optional in schema, enforced in logic for Sign Up
+  fullName: z.string().optional(),
   email: z.string().email({ message: 'Please enter a valid email address' }),
   password: z.string().min(6, { message: 'Password must be at least 6 characters' }),
 })
@@ -123,7 +138,7 @@ export default function AuthPage() {
   const [isLoading, setIsLoading] = useState(false)
 
   const navigate = useNavigate()
-  const { signIn, signUp } = useAuth() // Pulling directly from your context
+  const { signIn, signUp } = useAuth()
   const { toast } = useToast()
 
   const {
@@ -146,7 +161,7 @@ export default function AuthPage() {
         const { error } = await signIn(data.email, data.password)
         if (error) throw error
 
-        navigate('/') // Navigate home on success
+        navigate('/')
       } else {
         // --- SIGN UP FLOW ---
         if (!data.fullName || data.fullName.trim().length < 2) {
@@ -162,7 +177,7 @@ export default function AuthPage() {
           title: 'Account created!',
           description: 'Welcome! You can now log in with your credentials.',
         })
-        setIsLogin(true) // Switch to login screen after successful signup
+        setIsLogin(true)
       }
     } catch (error: any) {
       toast({
@@ -175,114 +190,146 @@ export default function AuthPage() {
     }
   }
 
-  // Toggle between Login and Sign Up modes
   const toggleMode = () => {
     setIsLogin(!isLogin)
     clearErrors()
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#fafafa]">
-      <div className="w-full max-w-[420px] rounded-2xl bg-white p-10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-zinc-100">
-        <div className="text-center mb-8">
-          <h2 className="font-display text-3xl font-semibold text-zinc-900 tracking-tight">
-            {isLogin ? 'Welcome back' : 'Create an account'}
-          </h2>
-          <p className="mt-2 text-sm text-zinc-500">
-            {isLogin
-              ? 'Enter your credentials to access your account.'
-              : 'Sign up to get started with your account.'}
-          </p>
+    <div className="flex min-h-screen bg-[#FDFBF7]">
+      {/* LEFT SIDE: Form Section */}
+      <div className="flex w-full flex-col justify-center px-6 py-12 lg:w-1/2 lg:px-16 xl:px-24">
+        {/* Back to Home Link */}
+        <div className="absolute top-6 left-6 lg:top-8 lg:left-12">
+          <Link
+            to="/"
+            className="flex items-center gap-2 text-sm font-medium text-[#7A6354] hover:text-[#4A3525] transition-colors">
+            <ArrowLeftIcon className="w-4 h-4" />
+            Back to Home
+          </Link>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-          {/* CONDITIONAL FULL NAME INPUT (Only shows on Sign Up) */}
-          {!isLogin && (
-            <div className="space-y-1.5 animate-in fade-in slide-in-from-top-2">
-              <label className="text-sm font-medium text-zinc-800">Full Name</label>
+        <div className="mx-auto w-full max-w-[420px]">
+          <div className="mb-10">
+            <h2 className="font-display text-4xl font-bold text-[#3E2723] tracking-tight">
+              {isLogin ? 'Welcome back' : 'Create an account'}
+            </h2>
+            <p className="mt-3 text-[15px] text-[#7A6354]">
+              {isLogin
+                ? 'Enter your credentials to access your estate portfolio.'
+                : 'Sign up to discover exclusive properties and manage your listings.'}
+            </p>
+          </div>
+
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+            {/* CONDITIONAL FULL NAME INPUT */}
+            {!isLogin && (
+              <div className="space-y-2 animate-in fade-in slide-in-from-top-2">
+                <label className="text-sm font-semibold text-[#5D432F]">Full Name</label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-[#A68A78]">
+                    <UserIcon className="w-5 h-5" />
+                  </div>
+                  <input
+                    {...register('fullName')}
+                    type="text"
+                    placeholder="e.g. Samir Oulkhir"
+                    className="flex h-12 w-full rounded-xl border border-[#E8DFD8] bg-white px-3 py-2 pl-12 text-[#3E2723] placeholder:text-[#CBBBB0] focus:outline-none focus:ring-2 focus:ring-[#8D6E5A] focus:border-transparent transition-all shadow-sm"
+                  />
+                </div>
+                {errors.fullName && (
+                  <p className="text-xs font-medium text-red-500">{errors.fullName.message}</p>
+                )}
+              </div>
+            )}
+
+            {/* Email Input */}
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-[#5D432F]">Email</label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-zinc-400">
-                  <UserIcon className="w-4 h-4" />
+                <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-[#A68A78]">
+                  <MailIcon className="w-5 h-5" />
                 </div>
                 <input
-                  {...register('fullName')}
-                  type="text"
-                  placeholder="e.g. Samir Oulkhir"
-                  className="flex h-11 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 pl-10 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-1 focus:ring-zinc-900 focus:border-zinc-900 transition-colors"
+                  {...register('email')}
+                  type="email"
+                  placeholder="you@example.com"
+                  className="flex h-12 w-full rounded-xl border border-[#E8DFD8] bg-white px-3 py-2 pl-12 text-[#3E2723] placeholder:text-[#CBBBB0] focus:outline-none focus:ring-2 focus:ring-[#8D6E5A] focus:border-transparent transition-all shadow-sm"
                 />
               </div>
-              {errors.fullName && (
-                <p className="text-xs font-medium text-red-500">{errors.fullName.message}</p>
+              {errors.email && (
+                <p className="text-xs font-medium text-red-500">{errors.email.message}</p>
               )}
             </div>
-          )}
 
-          {/* Email Input */}
-          <div className="space-y-1.5">
-            <label className="text-sm font-medium text-zinc-800">Email</label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-zinc-400">
-                <MailIcon className="w-4 h-4" />
+            {/* Password Input */}
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-[#5D432F]">Password</label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-[#A68A78]">
+                  <LockIcon className="w-5 h-5" />
+                </div>
+                <input
+                  {...register('password')}
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="••••••••"
+                  className="flex h-12 w-full rounded-xl border border-[#E8DFD8] bg-white px-3 py-2 pl-12 pr-12 text-[#3E2723] placeholder:text-[#CBBBB0] focus:outline-none focus:ring-2 focus:ring-[#8D6E5A] focus:border-transparent transition-all shadow-sm"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 flex items-center pr-4 text-[#A68A78] hover:text-[#5D432F] focus:outline-none transition-colors">
+                  {showPassword ? (
+                    <EyeOffIcon className="w-5 h-5" />
+                  ) : (
+                    <EyeIcon className="w-5 h-5" />
+                  )}
+                </button>
               </div>
-              <input
-                {...register('email')}
-                type="email"
-                placeholder="you@example.com"
-                className="flex h-11 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 pl-10 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-1 focus:ring-zinc-900 focus:border-zinc-900 transition-colors"
-              />
+              {errors.password && (
+                <p className="text-xs font-medium text-red-500">{errors.password.message}</p>
+              )}
             </div>
-            {errors.email && (
-              <p className="text-xs font-medium text-red-500">{errors.email.message}</p>
-            )}
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="mt-4 flex w-full items-center justify-center rounded-xl bg-[#4A3525] px-4 py-3.5 text-sm font-bold text-white shadow-md transition-all hover:bg-[#322318] focus:outline-none focus:ring-2 focus:ring-[#4A3525] focus:ring-offset-2 focus:ring-offset-[#FDFBF7] disabled:opacity-70 disabled:pointer-events-none">
+              {isLoading ? <SpinnerIcon className="mr-2 h-5 w-5" /> : null}
+              {isLoading ? 'Please wait...' : isLogin ? 'Sign In' : 'Create Account'}
+            </button>
+          </form>
+
+          {/* Footer Toggle */}
+          <div className="mt-8 text-center text-sm text-[#7A6354]">
+            {isLogin ? "Don't have an account? " : 'Already have an account? '}
+            <button
+              onClick={toggleMode}
+              className="font-bold text-[#4A3525] hover:underline hover:text-[#322318] focus:outline-none transition-colors">
+              {isLogin ? 'Sign up' : 'Log in'}
+            </button>
           </div>
+        </div>
+      </div>
 
-          {/* Password Input */}
-          <div className="space-y-1.5">
-            <label className="text-sm font-medium text-zinc-800">Password</label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-zinc-400">
-                <LockIcon className="w-4 h-4" />
-              </div>
-              <input
-                {...register('password')}
-                type={showPassword ? 'text' : 'password'}
-                placeholder="••••••••"
-                className="flex h-11 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 pl-10 pr-10 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-1 focus:ring-zinc-900 focus:border-zinc-900 transition-colors"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute inset-y-0 right-0 flex items-center pr-3.5 text-zinc-400 hover:text-zinc-600 focus:outline-none">
-                {showPassword ? (
-                  <EyeOffIcon className="w-4 h-4" />
-                ) : (
-                  <EyeIcon className="w-4 h-4" />
-                )}
-              </button>
-            </div>
-            {errors.password && (
-              <p className="text-xs font-medium text-red-500">{errors.password.message}</p>
-            )}
-          </div>
+      {/* RIGHT SIDE: Image Section (Hidden on mobile) */}
+      <div className="hidden lg:block lg:w-1/2 relative">
+        {/* Deep chocolate overlay for richer aesthetic */}
+        <div className="absolute inset-0 bg-[#3E2723]/20 z-10 mix-blend-overlay"></div>
+        <img
+          src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2075&q=80"
+          alt="Luxury modern real estate home"
+          className="absolute inset-0 h-full w-full object-cover"
+        />
 
-          {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="mt-2 flex w-full items-center justify-center rounded-lg bg-[#18181b] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none">
-            {isLoading ? <SpinnerIcon className="mr-2 h-4 w-4" /> : null}
-            {isLoading ? 'Please wait...' : isLogin ? 'Sign In' : 'Sign Up'}
-          </button>
-        </form>
-
-        {/* Footer Toggle */}
-        <div className="mt-8 text-center text-sm text-zinc-500">
-          {isLogin ? "Don't have an account? " : 'Already have an account? '}
-          <button
-            onClick={toggleMode}
-            className="font-semibold text-zinc-900 hover:underline focus:outline-none">
-            {isLogin ? 'Sign up' : 'Log in'}
-          </button>
+        {/* Tasteful floating card on the image */}
+        <div className="absolute bottom-12 left-12 right-12 z-20 rounded-2xl bg-white/10 p-8 backdrop-blur-md border border-white/20 text-white shadow-2xl">
+          <h3 className="font-display text-2xl font-bold mb-2">Find your perfect space.</h3>
+          <p className="text-white/80 leading-relaxed">
+            Join thousands of users discovering luxury properties, managing portfolios, and finding
+            their dream homes with EstateHub.
+          </p>
         </div>
       </div>
     </div>
