@@ -24,54 +24,55 @@ export default function HeroSection() {
 
   return (
     <section className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background transition-colors duration-300">
-      {/* 1. FIXED OVERLAY */}
+      {/* 1. FIXED OVERLAY - Darkened for much better text contrast */}
       <div
         className="absolute inset-0 bg-cover bg-center"
         style={{ backgroundImage: `url(${heroBg})` }}
       />
-      <div className="absolute inset-0 bg-gradient-to-b from-background/45 via-background/20 to-background dark:from-background/70 dark:via-background/50 dark:to-background backdrop-blur-[2px]" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-background dark:from-black/80 dark:via-black/60 dark:to-background backdrop-blur-[2px]" />
 
-      {/* Decorative Blobs */}
-      <div className="absolute -top-20 -left-20 h-80 w-80 shape-blob bg-accent/10 blur-3xl animate-float" />
-      <div className="absolute top-1/4 -right-16 h-64 w-64 shape-blob-2 bg-caramel/15 blur-3xl animate-float-slow" />
+      {/* Decorative Blobs - Swapped to standard Tailwind warm colors */}
+      <div className="absolute -top-20 -left-20 h-80 w-80 rounded-full bg-primary/20 blur-3xl animate-float" />
+      <div className="absolute top-1/4 -right-16 h-64 w-64 rounded-full bg-amber-500/20 blur-3xl animate-float-slow" />
       <div
-        className="absolute bottom-20 left-1/4 h-48 w-48 shape-blob-3 bg-chocolate-light/15 blur-3xl animate-float"
+        className="absolute bottom-20 left-1/4 h-48 w-48 rounded-full bg-orange-500/20 blur-3xl animate-float"
         style={{ animationDelay: '2s' }}
       />
 
       <div className="relative z-10 container mx-auto px-4 text-center mt-12 transition-colors duration-300">
         <div className="animate-fade-in-up">
-          <span className="inline-flex items-center gap-2 rounded-full border border-accent/20 bg-accent/5 px-5 py-2 text-sm font-semibold text-accent backdrop-blur-sm shadow-sm transition-colors duration-300">
-            <span className="h-2.5 w-2.5 rounded-full bg-accent animate-pulse" />
+          {/* Badge - Cleaned up to use primary theme color */}
+          <span className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-5 py-2 text-sm font-semibold text-primary-foreground dark:text-primary backdrop-blur-md shadow-sm transition-colors duration-300 text-white">
+            <span className="h-2.5 w-2.5 rounded-full bg-amber-400 animate-pulse" />
             {getValue('hero_badge', 'The #1 Marketplace for Premium Properties')}
           </span>
         </div>
 
         {/* 2. TYPOGRAPHY */}
         <h1
-          className="mt-8 font-display text-5xl font-extrabold leading-[1.1] tracking-tight text-foreground sm:text-6xl md:text-7xl lg:text-8xl animate-fade-in-up drop-shadow-sm transition-colors duration-300"
+          className="mt-8 font-display text-5xl font-extrabold leading-[1.1] tracking-tight text-white sm:text-6xl md:text-7xl lg:text-8xl animate-fade-in-up drop-shadow-sm transition-colors duration-300"
           style={{ animationDelay: '0.1s' }}>
           {getValue('hero_title_line1', 'Find Your Perfect')}
-          <span className="text-gradient-chocolate block mt-2 pb-2">
+          {/* Title Gradient - Swapped to a standard rich amber/orange gradient */}
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-500 block mt-2 pb-2">
             {getValue('hero_title_line2', 'Dream Home')}
           </span>
         </h1>
 
         <p
-          className="mx-auto mt-6 max-w-2xl text-lg text-foreground/80 md:text-xl animate-fade-in-up font-medium transition-colors duration-300"
+          className="mx-auto mt-6 max-w-2xl text-lg text-slate-200 md:text-xl animate-fade-in-up font-medium transition-colors duration-300"
           style={{ animationDelay: '0.2s' }}>
           {getValue('hero_subtitle', 'Discover premium properties curated for you.')}
         </p>
 
         {/* 3. CONVERSION FOCUSED SEARCH BAR: FIXED STACKING HERE */}
         <div
-          // Added 'relative z-[200]' to ensure the whole search experience floats on top
-          className="relative z-[200] mx-auto mt-10 max-w-4xl animate-fade-in-up rounded-2xl bg-background/95 p-4 border border-border/50 shadow-2xl backdrop-blur-md sm:p-6 transition-colors duration-300"
+          className="relative z-[200] mx-auto mt-10 max-w-4xl animate-fade-in-up rounded-2xl bg-background/90 p-4 border border-border/50 shadow-2xl backdrop-blur-xl sm:p-6 transition-colors duration-300"
           style={{ animationDelay: '0.35s' }}>
           <div className="flex flex-col gap-3 md:flex-row md:items-center">
             {/* Search Input */}
-            <div className="flex flex-1 items-center gap-3 rounded-xl bg-muted/50 px-4 py-3.5 focus-within:ring-2 focus-within:ring-accent focus-within:bg-background transition-all duration-300">
-              <MapPin className="h-5 w-5 text-accent shrink-0" />
+            <div className="flex flex-1 items-center gap-3 rounded-xl bg-muted/50 px-4 py-3.5 focus-within:ring-2 focus-within:ring-primary focus-within:bg-background transition-all duration-300">
+              <MapPin className="h-5 w-5 text-primary shrink-0" />
               <input
                 type="text"
                 placeholder="Search by city, state, or ZIP…"
@@ -83,9 +84,9 @@ export default function HeroSection() {
 
             {/* CUSTOM Property Type Dropdown */}
             <div
-              className="relative flex items-center gap-3 rounded-xl bg-muted/50 px-4 py-3.5 focus-within:ring-2 focus-within:ring-accent focus-within:bg-background transition-all duration-300 md:w-48 cursor-pointer z-50"
+              className="relative flex items-center gap-3 rounded-xl bg-muted/50 px-4 py-3.5 hover:bg-muted/80 focus-within:ring-2 focus-within:ring-primary focus-within:bg-background transition-all duration-300 md:w-48 cursor-pointer z-50"
               onClick={() => setIsTypeOpen(!isTypeOpen)}>
-              <Home className="h-5 w-5 text-accent shrink-0" />
+              <Home className="h-5 w-5 text-primary shrink-0" />
               <div className="w-full flex items-center justify-between text-sm text-foreground font-medium select-none transition-colors duration-300">
                 <span className="truncate">{selectedType || 'All Types'}</span>
                 <ChevronDown
@@ -95,7 +96,6 @@ export default function HeroSection() {
 
               {isTypeOpen && (
                 <>
-                  {/* Invisible overlay to close dropdown when clicking outside */}
                   <div
                     className="fixed inset-0 z-80"
                     onClick={(e) => {
@@ -106,14 +106,14 @@ export default function HeroSection() {
 
                   <div className="absolute top-[calc(100%+8px)] left-0 w-full rounded-xl bg-background border border-border/50 shadow-2xl z-[100] py-2 animate-in fade-in slide-in-from-top-2 transition-colors duration-300">
                     <div
-                      className="px-4 py-2.5 text-sm font-medium text-foreground hover:bg-accent/10 hover:text-accent cursor-pointer transition-colors duration-300"
+                      className="px-4 py-2.5 text-sm font-medium text-foreground hover:bg-primary/10 hover:text-primary cursor-pointer transition-colors duration-300"
                       onClick={() => setSelectedType('')}>
                       All Types
                     </div>
                     {propertyTypes?.map((t) => (
                       <div
                         key={t.id}
-                        className="px-4 py-2.5 text-sm font-medium text-foreground hover:bg-accent/10 hover:text-accent cursor-pointer transition-colors duration-300"
+                        className="px-4 py-2.5 text-sm font-medium text-foreground hover:bg-primary/10 hover:text-primary cursor-pointer transition-colors duration-300"
                         onClick={() => setSelectedType(t.value)}>
                         {t.value}
                       </div>
@@ -125,9 +125,9 @@ export default function HeroSection() {
 
             {/* CUSTOM Price Dropdown */}
             <div
-              className="relative flex items-center gap-3 rounded-xl bg-muted/50 px-4 py-3.5 focus-within:ring-2 focus-within:ring-accent focus-within:bg-background transition-all duration-300 md:w-48 cursor-pointer z-40"
+              className="relative flex items-center gap-3 rounded-xl bg-muted/50 px-4 py-3.5 hover:bg-muted/80 focus-within:ring-2 focus-within:ring-primary focus-within:bg-background transition-all duration-300 md:w-48 cursor-pointer z-40"
               onClick={() => setIsPriceOpen(!isPriceOpen)}>
-              <DollarSign className="h-5 w-5 text-accent shrink-0" />
+              <DollarSign className="h-5 w-5 text-primary shrink-0" />
               <div className="w-full flex items-center justify-between text-sm text-foreground font-medium select-none transition-colors duration-300">
                 <span className="truncate">{selectedPrice || 'Any Price'}</span>
                 <ChevronDown
@@ -137,7 +137,6 @@ export default function HeroSection() {
 
               {isPriceOpen && (
                 <>
-                  {/* Invisible overlay to close dropdown when clicking outside */}
                   <div
                     className="fixed inset-0 z-80"
                     onClick={(e) => {
@@ -156,7 +155,7 @@ export default function HeroSection() {
                     ].map((p) => (
                       <div
                         key={p.label}
-                        className="px-4 py-2.5 text-sm font-medium text-foreground hover:bg-accent/10 hover:text-accent cursor-pointer transition-colors duration-300"
+                        className="px-4 py-2.5 text-sm font-medium text-foreground hover:bg-primary/10 hover:text-primary cursor-pointer transition-colors duration-300"
                         onClick={() => setSelectedPrice(p.label)}>
                         {p.label}
                       </div>
@@ -166,10 +165,10 @@ export default function HeroSection() {
               )}
             </div>
 
-            {/* CTA Button */}
+            {/* CTA Button - Replaced custom class with standard rich gradient */}
             <Button
               size="lg"
-              className="gradient-caramel text-white hover:opacity-90 rounded-xl px-8 py-7 shadow-lg hover:shadow-xl transition-all duration-300 w-full md:w-auto font-bold text-base"
+              className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 border-none text-white rounded-xl px-8 py-7 shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 w-full md:w-auto font-bold text-base"
               onClick={() => navigate('/search')}>
               <Search className="mr-2 h-5 w-5" /> Search
             </Button>
@@ -183,8 +182,8 @@ export default function HeroSection() {
           {['Verified Sellers', 'Secure Transactions', 'Free to Browse'].map((badge) => (
             <span
               key={badge}
-              className="flex items-center gap-2 text-sm font-medium text-foreground/70 transition-colors duration-300">
-              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-green-500/15 text-xs text-green-600 dark:text-green-400">
+              className="flex items-center gap-2 text-sm font-medium text-slate-300 drop-shadow-sm transition-colors duration-300">
+              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500/20 text-xs text-emerald-400">
                 ✓
               </span>
               {badge}

@@ -7,7 +7,6 @@ import { Badge } from '@/components/ui/badge'
 import { useToast } from '@/hooks/use-toast'
 import { Link } from 'react-router-dom'
 
-// Match this to the Supabase schema we created
 interface Inquiry {
   id: string
   property_id: string
@@ -18,7 +17,6 @@ interface Inquiry {
   message: string
   status: 'pending' | 'resolved'
   created_at: string
-  // This comes from the joined properties table
   property?: {
     title: string
   }
@@ -29,23 +27,32 @@ export default function AdminInquiries() {
   const [isLoading, setIsLoading] = useState(true)
   const { toast } = useToast()
 
-  // Fetch inquiries on load
   useEffect(() => {
     fetchInquiries()
+
+    // --- REAL-TIME MAGIC ---
+    // Listen to the database so if a buyer sends a message, it pops up instantly
+    const channel = supabase
+      .channel('realtime-inquiries')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'inquiries' }, (payload) => {
+        console.log('Database change detected!', payload)
+        // Silently fetch the fresh data (including the property titles)
+        fetchInquiries(false)
+      })
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
   }, [])
 
-  const fetchInquiries = async () => {
-    setIsLoading(true)
+  // Pass showLoading = false when auto-refreshing via real-time so the screen doesn't blink
+  const fetchInquiries = async (showLoading = true) => {
+    if (showLoading) setIsLoading(true)
     try {
-      // Fetch inquiries AND join the property title so we know which house they want
       const { data, error } = await supabase
         .from('inquiries')
-        .select(
-          `
-          *,
-          property:properties(title)
-        `
-        )
+        .select(`*, property:properties(title)`)
         .order('created_at', { ascending: false })
 
       if (error) throw error
@@ -64,11 +71,17 @@ export default function AdminInquiries() {
 
   const markAsResolved = async (id: string) => {
     try {
-      const { error } = await supabase.from('inquiries').update({ status: 'resolved' }).eq('id', id)
+      // We add .select() to FORCE the database to tell us if the update was actually successful
+      const { data, error } = await supabase
+        .from('inquiries')
+        .update({ status: 'resolved' })
+        .eq('id', id)
+        .select()
 
       if (error) throw error
+      if (!data || data.length === 0)
+        throw new Error('Database rejected the update. Check RLS policies.')
 
-      // Update local state to reflect the change immediately
       setInquiries((prev) =>
         prev.map((inq) => (inq.id === id ? { ...inq, status: 'resolved' } : inq))
       )
@@ -86,7 +99,6 @@ export default function AdminInquiries() {
 
       if (error) throw error
 
-      // Remove from local state
       setInquiries((prev) => prev.filter((inq) => inq.id !== id))
       toast({ title: 'Inquiry deleted.' })
     } catch (error: any) {
@@ -122,7 +134,7 @@ export default function AdminInquiries() {
           <h2 className="text-2xl font-bold font-display text-foreground">Property Inquiries</h2>
           <p className="text-sm text-muted-foreground">Manage messages from potential buyers.</p>
         </div>
-        <Badge variant="secondary" className="px-3 py-1 text-sm">
+        <Badge variant="secondary" className="px-3 py-1 text-sm bg-accent/10 text-accent">
           {inquiries.filter((i) => i.status === 'pending').length} New
         </Badge>
       </div>
@@ -133,7 +145,7 @@ export default function AdminInquiries() {
             key={inquiry.id}
             className={`relative flex flex-col gap-4 rounded-xl border p-6 transition-all ${
               inquiry.status === 'pending'
-                ? 'border-accent/30 bg-accent/5 neu-shadow-sm'
+                ? 'border-accent/30 bg-accent/5 shadow-sm'
                 : 'border-border bg-card opacity-75'
             }`}>
             {/* Header: User Info & Status */}
@@ -142,7 +154,7 @@ export default function AdminInquiries() {
                 <h3 className="font-bold text-lg text-foreground flex items-center gap-2">
                   {inquiry.sender_name}
                   {inquiry.status === 'pending' && (
-                    <span className="flex h-2 w-2 rounded-full bg-accent"></span>
+                    <span className="flex h-2 w-2 rounded-full bg-accent animate-pulse"></span>
                   )}
                 </h3>
                 <div className="mt-2 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
