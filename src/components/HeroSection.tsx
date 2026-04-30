@@ -1,10 +1,10 @@
+import heroBgDefault from '@/assets/hero-bg.jpg'
+import { Button } from '@/components/ui/button'
+import { useListingOptions } from '@/hooks/useListingOptions'
+import { useSiteContent } from '@/hooks/useSiteContent'
+import { ChevronDown, DollarSign, Home, MapPin, Search } from 'lucide-react'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Search, MapPin, Home, DollarSign, ChevronDown } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { useSiteContent } from '@/hooks/useSiteContent'
-import { useListingOptions } from '@/hooks/useListingOptions'
-import heroBgDefault from '@/assets/hero-bg.jpg'
 
 export default function HeroSection() {
   const navigate = useNavigate()
@@ -44,7 +44,7 @@ export default function HeroSection() {
           {/* Badge - Cleaned up to use primary theme color */}
           <span className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-5 py-2 text-sm font-semibold text-primary-foreground dark:text-primary backdrop-blur-md shadow-sm transition-colors duration-300 text-white">
             <span className="h-2.5 w-2.5 rounded-full bg-amber-400 animate-pulse" />
-            {getValue('hero_badge', 'The #1 Marketplace for Premium Properties')}
+            {getValue('hero_badge', 'Le marché n°1 des propriétés de prestige')}
           </span>
         </div>
 
@@ -52,17 +52,20 @@ export default function HeroSection() {
         <h1
           className="mt-8 font-display text-5xl font-extrabold leading-[1.1] tracking-tight text-white sm:text-6xl md:text-7xl lg:text-8xl animate-fade-in-up drop-shadow-sm transition-colors duration-300"
           style={{ animationDelay: '0.1s' }}>
-          {getValue('hero_title_line1', 'Find Your Perfect')}
+          {getValue('hero_title_line1', 'Trouvez votre')}
           {/* Title Gradient - Swapped to a standard rich amber/orange gradient */}
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-500 block mt-2 pb-2">
-            {getValue('hero_title_line2', 'Dream Home')}
+            {getValue('hero_title_line2', 'Maison de rêve')}
           </span>
         </h1>
 
         <p
           className="mx-auto mt-6 max-w-2xl text-lg text-slate-200 md:text-xl animate-fade-in-up font-medium transition-colors duration-300"
           style={{ animationDelay: '0.2s' }}>
-          {getValue('hero_subtitle', 'Discover premium properties curated for you.')}
+          {getValue(
+            'hero_subtitle',
+            'Découvrez des propriétés de prestige sélectionnées pour vous.'
+          )}
         </p>
 
         {/* 3. CONVERSION FOCUSED SEARCH BAR: FIXED STACKING HERE */}
@@ -75,7 +78,7 @@ export default function HeroSection() {
               <MapPin className="h-5 w-5 text-primary shrink-0" />
               <input
                 type="text"
-                placeholder="Search by city, state, or ZIP…"
+                placeholder="Rechercher par ville, région ou code postal…"
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
                 className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground text-foreground font-medium transition-colors duration-300"
@@ -88,7 +91,7 @@ export default function HeroSection() {
               onClick={() => setIsTypeOpen(!isTypeOpen)}>
               <Home className="h-5 w-5 text-primary shrink-0" />
               <div className="w-full flex items-center justify-between text-sm text-foreground font-medium select-none transition-colors duration-300">
-                <span className="truncate">{selectedType || 'All Types'}</span>
+                <span className="truncate">{selectedType || 'Tous les types'}</span>
                 <ChevronDown
                   className={`h-4 w-4 text-muted-foreground transition-transform duration-200 ${isTypeOpen ? 'rotate-180' : ''}`}
                 />
@@ -108,7 +111,7 @@ export default function HeroSection() {
                     <div
                       className="px-4 py-2.5 text-sm font-medium text-foreground hover:bg-primary/10 hover:text-primary cursor-pointer transition-colors duration-300"
                       onClick={() => setSelectedType('')}>
-                      All Types
+                      Tous les types
                     </div>
                     {propertyTypes?.map((t) => (
                       <div
@@ -129,7 +132,7 @@ export default function HeroSection() {
               onClick={() => setIsPriceOpen(!isPriceOpen)}>
               <DollarSign className="h-5 w-5 text-primary shrink-0" />
               <div className="w-full flex items-center justify-between text-sm text-foreground font-medium select-none transition-colors duration-300">
-                <span className="truncate">{selectedPrice || 'Any Price'}</span>
+                <span className="truncate">{selectedPrice || 'Tous les prix'}</span>
                 <ChevronDown
                   className={`h-4 w-4 text-muted-foreground transition-transform duration-200 ${isPriceOpen ? 'rotate-180' : ''}`}
                 />
@@ -147,11 +150,11 @@ export default function HeroSection() {
 
                   <div className="absolute top-[calc(100%+8px)] left-0 w-full rounded-xl bg-background border border-border/50 shadow-2xl z-[100] py-2 animate-in fade-in slide-in-from-top-2 transition-colors duration-300">
                     {[
-                      { label: 'Any Price', value: '' },
-                      { label: 'Under $300K', value: 'under_300' },
-                      { label: '$300K – $600K', value: '300_600' },
-                      { label: '$600K – $1M', value: '600_1m' },
-                      { label: '$1M+', value: 'over_1m' },
+                      { label: 'Tous les prix', value: '' },
+                      { label: 'Moins de 300 000 DH', value: 'under_300' },
+                      { label: '300 000 DH – 600 000 DH', value: '300_600' },
+                      { label: '600 000 DH – 1M DH', value: '600_1m' },
+                      { label: 'Plus de 1M DH', value: 'over_1m' },
                     ].map((p) => (
                       <div
                         key={p.label}
@@ -170,7 +173,7 @@ export default function HeroSection() {
               size="lg"
               className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 border-none text-white rounded-xl px-8 py-7 shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 w-full md:w-auto font-bold text-base"
               onClick={() => navigate('/search')}>
-              <Search className="mr-2 h-5 w-5" /> Search
+              <Search className="mr-2 h-5 w-5" /> Rechercher
             </Button>
           </div>
         </div>
@@ -179,7 +182,7 @@ export default function HeroSection() {
         <div
           className="mt-10 flex flex-wrap items-center justify-center gap-4 sm:gap-8 animate-fade-in-up"
           style={{ animationDelay: '0.5s' }}>
-          {['Verified Sellers', 'Secure Transactions', 'Free to Browse'].map((badge) => (
+          {['Vendeurs vérifiés', 'Transactions sécurisées', 'Navigation gratuite'].map((badge) => (
             <span
               key={badge}
               className="flex items-center gap-2 text-sm font-medium text-slate-300 drop-shadow-sm transition-colors duration-300">

@@ -1,27 +1,3 @@
-import { useState } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
-import {
-  Building2,
-  Menu,
-  X,
-  User,
-  LogIn,
-  LogOut,
-  Shield,
-  Home,
-  Search,
-  MapPin,
-  DollarSign,
-  Info,
-  Mail,
-  FileText,
-  Users,
-  ChevronDown,
-  TrendingUp,
-  Building,
-  Landmark,
-  TreePine,
-} from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -30,13 +6,34 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { useAuth } from '@/hooks/useAuth'
 import { useAdmin } from '@/hooks/useAdmin'
-import { cn } from '@/lib/utils'
-import { useTranslation } from 'react-i18next'
-import LanguageSwitcher from './LanguageSwitcher'
-import ThemeToggle from './ThemeToggle'
+import { useAuth } from '@/hooks/useAuth'
 import { useSiteContent } from '@/hooks/useSiteContent'
+import { cn } from '@/lib/utils'
+import {
+  Building,
+  Building2,
+  ChevronDown,
+  DollarSign,
+  FileText,
+  Home,
+  Info,
+  Landmark,
+  LogIn,
+  LogOut,
+  Mail,
+  MapPin,
+  Menu,
+  Search,
+  Shield,
+  TreePine,
+  TrendingUp,
+  User,
+  Users,
+  X,
+} from 'lucide-react'
+import { useState } from 'react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 
 function MegaMenuTrigger({
   label,
@@ -56,18 +53,18 @@ function MegaMenuTrigger({
       onMouseLeave={() => setOpen(false)}>
       <button
         className={cn(
-          'flex items-center gap-1 rounded-xl px-4 py-2 text-sm font-medium transition-all duration-200',
-          isActive ? 'neu-pressed text-accent' : 'text-muted-foreground hover:text-foreground'
+          'flex items-center gap-1.5 rounded-md px-3 py-1.5 text-[13px] font-semibold transition-colors',
+          isActive ? 'text-cyan-800' : 'text-slate-700 hover:text-slate-900'
         )}>
         {label}
         <ChevronDown
-          className={cn('h-3 w-3 transition-transform duration-200', open && 'rotate-180')}
+          className={cn('h-3.5 w-3.5 transition-transform duration-200', open && 'rotate-180')}
         />
       </button>
 
       {open && (
-        <div className="absolute left-1/2 top-full pt-2 -translate-x-1/2">
-          <div className="min-w-[520px] rounded-2xl border border-border/60 bg-background/95 p-5 shadow-xl backdrop-blur-xl animate-in fade-in-0 zoom-in-95 duration-200">
+        <div className="absolute left-1/2 top-full pt-3 -translate-x-1/2 z-50">
+          <div className="min-w-[480px] rounded-lg border border-slate-200 bg-white p-5 shadow-2xl animate-in fade-in-0 zoom-in-95 duration-200">
             {children}
           </div>
         </div>
@@ -93,13 +90,15 @@ function MegaMenuItem({
     <Link
       to={to}
       onClick={onClick}
-      className="group flex items-start gap-3 rounded-xl p-3 transition-colors hover:bg-secondary/60">
-      <div className="mt-0.5 rounded-lg bg-accent/10 p-2 text-accent transition-colors group-hover:bg-accent group-hover:text-accent-foreground">
-        <Icon className="h-4 w-4" />
+      className="group flex items-start gap-3 rounded-md p-2.5 transition-colors">
+      <div className="mt-0.5 rounded-md bg-cyan-100 p-2 text-cyan-800 transition-transform group-hover:scale-105 shadow-sm">
+        <Icon className="h-4.5 w-4.5 stroke-[1.5]" />
       </div>
       <div>
-        <p className="text-sm font-semibold text-foreground">{title}</p>
-        <p className="text-xs text-muted-foreground">{description}</p>
+        <p className="text-[13px] font-semibold text-slate-900 group-hover:text-cyan-800 transition-colors">
+          {title}
+        </p>
+        <p className="text-[11px] font-medium text-slate-600 mt-0.5">{description}</p>
       </div>
     </Link>
   )
@@ -111,12 +110,11 @@ export default function Navbar() {
   const navigate = useNavigate()
   const { user, signOut } = useAuth()
   const { isAdmin } = useAdmin()
-  const { t } = useTranslation()
   const { getValue } = useSiteContent()
 
   const siteName = getValue('navbar_site_name', 'SamirEstate')
   const logoImage = getValue('navbar_logo_image')
-  const ctaText = getValue('navbar_cta_text', t('nav.listProperty'))
+  const ctaText = getValue('navbar_cta_text', 'Publier une annonce')
 
   const handleSignOut = async () => {
     await signOut()
@@ -130,150 +128,156 @@ export default function Navbar() {
   )
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/50">
+    <header className="fixed top-0 w-full z-50 bg-white border-b border-slate-200 shadow-sm">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
-        <Link to="/" className="flex items-center gap-2.5">
+        <Link to="/" className="flex items-center gap-2.5 group">
           {logoImage ? (
             <img src={logoImage} alt={siteName} className="h-9 w-auto object-contain" />
           ) : (
-            <div className="gradient-caramel rounded-xl p-2">
-              <Building2 className="h-5 w-5 text-accent-foreground" />
+            <div className="bg-slate-900 rounded-md p-2 transition-colors">
+              <Building2 className="h-5 w-5 text-white stroke-[2.5]" />
             </div>
           )}
-          <span className="font-display text-xl font-bold text-foreground">{siteName}</span>
+          <span className="font-display text-lg font-bold tracking-tight text-slate-950 uppercase">
+            {siteName}
+          </span>
         </Link>
 
         {/* Desktop nav */}
-        <nav className="hidden items-center gap-1 lg:flex">
+        <nav className="hidden items-center gap-1.5 lg:flex">
           <Link
             to="/"
             className={cn(
-              'rounded-xl px-4 py-2 text-sm font-medium transition-all duration-200',
-              location.pathname === '/'
-                ? 'neu-pressed text-accent'
-                : 'text-muted-foreground hover:text-foreground'
+              'rounded-md px-3 py-1.5 text-[13px] font-semibold transition-colors',
+              location.pathname === '/' ? 'text-cyan-800' : 'text-slate-700 hover:text-slate-900'
             )}>
-            {t('nav.home')}
+            Accueil
           </Link>
 
-          <MegaMenuTrigger label={t('nav.properties')} isActive={isPropertyPage}>
-            <div className="grid grid-cols-2 gap-1">
+          <MegaMenuTrigger label="Propriétés" isActive={isPropertyPage}>
+            <div className="grid grid-cols-2 gap-2">
               <MegaMenuItem
                 to="/search"
                 icon={Search}
-                title={t('nav.browseAll')}
-                description={t('nav.exploreAll')}
+                title="Tout parcourir"
+                description="Explorer toutes les propriétés"
               />
               <MegaMenuItem
                 to="/search?type=house"
                 icon={Home}
-                title={t('nav.houses')}
-                description={t('nav.singleFamily')}
+                title="Maisons"
+                description="Maisons unifamiliales"
               />
               <MegaMenuItem
                 to="/search?type=apartment"
                 icon={Building}
-                title={t('nav.apartments')}
-                description={t('nav.urbanLiving')}
+                title="Appartements"
+                description="Vie urbaine"
               />
               <MegaMenuItem
                 to="/search?type=condo"
                 icon={Landmark}
-                title={t('nav.condos')}
-                description={t('nav.modernCondos')}
+                title="Condos"
+                description="Condos modernes"
               />
               <MegaMenuItem
                 to="/search?type=land"
                 icon={TreePine}
-                title={t('nav.land')}
-                description={t('nav.buildDream')}
+                title="Terrains"
+                description="Construisez votre rêve"
               />
               <MegaMenuItem
                 to="/search?type=commercial"
                 icon={TrendingUp}
-                title={t('nav.commercial')}
-                description={t('nav.businessInvestment')}
+                title="Commercial"
+                description="Investissement d'entreprise"
               />
             </div>
-            <div className="mt-3 border-t border-border/50 pt-3">
+            <div className="mt-4 border-t border-slate-200 pt-4">
               <Link
                 to="/search"
-                className="flex items-center gap-2 text-xs font-medium text-accent hover:underline">
-                <MapPin className="h-3 w-3" /> {t('nav.viewAllMap')} →
+                className="flex items-center gap-2 text-[12px] font-bold text-cyan-800 hover:text-cyan-900 transition-colors">
+                <MapPin className="h-3.5 w-3.5 stroke-[2]" /> Voir tout sur la carte →
               </Link>
             </div>
           </MegaMenuTrigger>
 
-          <MegaMenuTrigger label={t('nav.company')} isActive={isCompanyPage}>
-            <div className="grid grid-cols-2 gap-1">
+          <MegaMenuTrigger label="Entreprise" isActive={isCompanyPage}>
+            <div className="grid grid-cols-2 gap-2">
               <MegaMenuItem
                 to="/about"
                 icon={Info}
-                title={t('nav.aboutUs')}
-                description={t('nav.ourStory')}
+                title="À propos de nous"
+                description="Notre histoire"
               />
               <MegaMenuItem
                 to="/contact"
                 icon={Mail}
-                title={t('nav.contact')}
-                description={t('nav.getInTouch')}
+                title="Contact"
+                description="Contactez-nous"
               />
               <MegaMenuItem
                 to="/pricing"
                 icon={DollarSign}
-                title={t('nav.pricing')}
-                description={t('nav.plansForEvery')}
+                title="Tarifs"
+                description="Des plans pour tous"
               />
               <MegaMenuItem
                 to="/terms"
                 icon={FileText}
-                title={t('nav.terms')}
-                description={t('nav.termsOfService')}
+                title="Conditions"
+                description="Conditions d'utilisation"
               />
               <MegaMenuItem
                 to="/privacy"
                 icon={Shield}
-                title={t('nav.privacy')}
-                description={t('nav.protectData')}
+                title="Confidentialité"
+                description="Protection des données"
               />
               <MegaMenuItem
                 to="/about"
                 icon={Users}
-                title={t('nav.ourTeam')}
-                description={t('nav.meetPeople')}
+                title="Notre équipe"
+                description="Rencontrez l'équipe"
               />
             </div>
           </MegaMenuTrigger>
         </nav>
 
-        <div className="hidden items-center gap-3 lg:flex">
-          <ThemeToggle />
-          <LanguageSwitcher />
+        <div className="hidden items-center gap-4 lg:flex">
           {user ? (
-            <DropdownMenu>
+            <DropdownMenu modal={false}>
               <DropdownMenuTrigger asChild>
                 <Button
                   size="sm"
                   variant="ghost"
-                  className="text-muted-foreground hover:text-foreground">
-                  <User className="mr-1 h-4 w-4" />
-                  {user.user_metadata?.full_name || t('nav.account')}
+                  className="p-1 font-semibold text-[13px] text-slate-700 hover:text-slate-950 transition-colors focus:bg-transparent">
+                  <User className="mr-1.5 h-4 w-4 stroke-[2]" />
+                  {user.user_metadata?.full_name || 'Compte'}
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem asChild>
-                  <Link to="/dashboard">{t('nav.sellerDashboard')}</Link>
+              <DropdownMenuContent
+                align="end"
+                className="w-52 border border-slate-200 bg-white font-medium shadow-xl p-1.5">
+                <DropdownMenuItem
+                  asChild
+                  className="cursor-pointer font-semibold py-1.5 text-[13px] hover:text-cyan-800 focus:bg-transparent focus:text-cyan-800">
+                  <Link to="/dashboard">Tableau de bord vendeur</Link>
                 </DropdownMenuItem>
                 {isAdmin && (
-                  <DropdownMenuItem asChild>
+                  <DropdownMenuItem
+                    asChild
+                    className="cursor-pointer font-semibold py-1.5 text-[13px] hover:text-cyan-800 focus:bg-transparent focus:text-cyan-800">
                     <Link to="/admin" className="flex items-center gap-2">
-                      <Shield className="h-4 w-4" /> {t('nav.adminPanel')}
+                      <Shield className="h-4 w-4 stroke-[1.5]" /> Panneau d'administration
                     </Link>
                   </DropdownMenuItem>
                 )}
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleSignOut}>
-                  <LogOut className="mr-2 h-4 w-4" /> {t('nav.signOut')}
+                <DropdownMenuSeparator className="bg-slate-200" />
+                <DropdownMenuItem
+                  onClick={handleSignOut}
+                  className="cursor-pointer font-bold text-destructive py-1.5 text-[13px] focus:bg-transparent">
+                  <LogOut className="mr-2 h-4 w-4 stroke-[2]" /> Se déconnecter
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -281,126 +285,136 @@ export default function Navbar() {
             <Button
               size="sm"
               variant="ghost"
-              className="text-muted-foreground hover:text-foreground"
+              className="p-1 font-semibold text-[13px] text-slate-700 hover:text-slate-950 transition-colors"
               asChild>
               <Link to="/auth">
-                <LogIn className="mr-1 h-4 w-4" /> {t('nav.signIn')}
+                <LogIn className="mr-1.5 h-4 w-4 stroke-[2]" /> Se connecter
               </Link>
             </Button>
           )}
           <Button
             size="sm"
-            className="gradient-caramel text-accent-foreground hover:opacity-90 rounded-xl shadow-md"
+            className="bg-cyan-700 text-white hover:bg-cyan-800 rounded-md font-bold text-[12px] px-5 shadow-sm"
             asChild>
             <Link to={user ? '/dashboard' : '/auth'}>{ctaText}</Link>
           </Button>
         </div>
 
         {/* Mobile toggle */}
-        <div className="flex items-center gap-2 lg:hidden">
-          <ThemeToggle />
-          <LanguageSwitcher />
-          <button className="text-foreground" onClick={() => setMobileOpen(!mobileOpen)}>
-            {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+        <div className="flex items-center gap-3 lg:hidden">
+          <button
+            className="text-slate-900 p-1 rounded-md transition-colors"
+            onClick={() => setMobileOpen(!mobileOpen)}>
+            {mobileOpen ? (
+              <X className="h-6 w-6 stroke-[2.5]" />
+            ) : (
+              <Menu className="h-6 w-6 stroke-[2.5]" />
+            )}
           </button>
         </div>
       </div>
 
       {/* Mobile menu */}
       {mobileOpen && (
-        <div className="border-t border-border/50 bg-background/95 backdrop-blur-xl lg:hidden">
-          <nav className="container mx-auto flex flex-col gap-1 px-4 py-4">
+        <div className="border-t border-slate-200 bg-white lg:hidden shadow-xl">
+          <nav className="container mx-auto flex flex-col gap-1.5 px-4 py-5 max-h-[calc(100vh-4rem)] overflow-y-auto">
             <Link
               to="/"
               onClick={() => setMobileOpen(false)}
-              className="rounded-xl px-4 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary/50">
-              {t('nav.home')}
+              className="rounded-md px-3 py-2.5 text-[13px] font-semibold text-slate-900 hover:text-cyan-800 transition-colors">
+              Accueil
             </Link>
 
-            <p className="mt-2 px-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground/60">
-              {t('nav.properties')}
-            </p>
+            <div className="mt-3 mb-1">
+              <p className="px-3 text-[11px] font-black uppercase tracking-widest text-slate-500">
+                Propriétés
+              </p>
+            </div>
             {[
-              { to: '/search', label: t('nav.browseAll') },
-              { to: '/search?type=house', label: t('nav.houses') },
-              { to: '/search?type=apartment', label: t('nav.apartments') },
-              { to: '/search?type=condo', label: t('nav.condos') },
+              { to: '/search', label: 'Tout parcourir' },
+              { to: '/search?type=house', label: 'Maisons' },
+              { to: '/search?type=apartment', label: 'Appartements' },
+              { to: '/search?type=condo', label: 'Condos' },
             ].map((link) => (
               <Link
                 key={link.to}
                 to={link.to}
                 onClick={() => setMobileOpen(false)}
-                className="rounded-xl px-4 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary/50">
+                className="rounded-md px-3 py-2.5 text-[13px] font-semibold text-slate-900 hover:text-cyan-800 transition-colors">
                 {link.label}
               </Link>
             ))}
 
-            <p className="mt-2 px-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground/60">
-              {t('nav.company')}
-            </p>
+            <div className="mt-3 mb-1">
+              <p className="px-3 text-[11px] font-black uppercase tracking-widest text-slate-500">
+                Entreprise
+              </p>
+            </div>
             {[
-              { to: '/about', label: t('nav.aboutUs') },
-              { to: '/contact', label: t('nav.contact') },
-              { to: '/pricing', label: t('nav.pricing') },
+              { to: '/about', label: 'À propos de nous' },
+              { to: '/contact', label: 'Contact' },
+              { to: '/pricing', label: 'Tarifs' },
             ].map((link) => (
               <Link
                 key={link.to}
                 to={link.to}
                 onClick={() => setMobileOpen(false)}
-                className="rounded-xl px-4 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary/50">
+                className="rounded-md px-3 py-2.5 text-[13px] font-semibold text-slate-900 hover:text-cyan-800 transition-colors">
                 {link.label}
               </Link>
             ))}
 
-            {user && (
-              <Link
-                to="/profile"
-                onClick={() => setMobileOpen(false)}
-                className="rounded-xl px-4 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary/50">
-                {t('nav.myProfile')}
-              </Link>
-            )}
-            {user && (
-              <Link
-                to="/dashboard"
-                onClick={() => setMobileOpen(false)}
-                className="rounded-xl px-4 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary/50">
-                {t('nav.sellerDashboard')}
-              </Link>
-            )}
-            {isAdmin && (
-              <Link
-                to="/admin"
-                onClick={() => setMobileOpen(false)}
-                className="rounded-xl px-4 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground">
-                <Shield className="mr-1 inline h-4 w-4" /> {t('nav.adminPanel')}
-              </Link>
-            )}
-            {user ? (
-              <button
-                onClick={() => {
-                  handleSignOut()
-                  setMobileOpen(false)
-                }}
-                className="rounded-xl px-4 py-2.5 text-left text-sm font-medium text-muted-foreground hover:text-foreground">
-                {t('nav.signOut')}
-              </button>
-            ) : (
-              <Link
-                to="/auth"
-                onClick={() => setMobileOpen(false)}
-                className="rounded-xl px-4 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground">
-                {t('nav.signIn')}
-              </Link>
-            )}
-            <Button
-              size="sm"
-              className="mt-2 gradient-caramel text-accent-foreground hover:opacity-90 rounded-xl"
-              asChild>
-              <Link to={user ? '/dashboard' : '/auth'} onClick={() => setMobileOpen(false)}>
-                {ctaText}
-              </Link>
-            </Button>
+            <div className="mt-5 border-t border-slate-200 pt-5 flex flex-col gap-1.5">
+              {user && (
+                <Link
+                  to="/profile"
+                  onClick={() => setMobileOpen(false)}
+                  className="rounded-md px-3 py-2.5 text-[13px] font-semibold text-slate-900 hover:text-cyan-800 transition-colors">
+                  Mon Profil
+                </Link>
+              )}
+              {user && (
+                <Link
+                  to="/dashboard"
+                  onClick={() => setMobileOpen(false)}
+                  className="rounded-md px-3 py-2.5 text-[13px] font-semibold text-slate-900 hover:text-cyan-800 transition-colors">
+                  Tableau de bord vendeur
+                </Link>
+              )}
+              {isAdmin && (
+                <Link
+                  to="/admin"
+                  onClick={() => setMobileOpen(false)}
+                  className="rounded-md px-3 py-2.5 text-[13px] font-semibold text-slate-900 hover:text-cyan-800 transition-colors flex items-center gap-2">
+                  <Shield className="h-4 w-4 stroke-[1.5]" /> Panneau d'administration
+                </Link>
+              )}
+              {user ? (
+                <button
+                  onClick={() => {
+                    handleSignOut()
+                    setMobileOpen(false)
+                  }}
+                  className="rounded-md px-3 py-2.5 text-left text-[13px] font-bold text-destructive transition-colors">
+                  Se déconnecter
+                </button>
+              ) : (
+                <Link
+                  to="/auth"
+                  onClick={() => setMobileOpen(false)}
+                  className="rounded-md px-3 py-2.5 text-[13px] font-semibold text-slate-900 hover:text-cyan-800 transition-colors">
+                  Se connecter
+                </Link>
+              )}
+              <Button
+                size="sm"
+                className="mt-4 bg-cyan-700 text-white hover:bg-cyan-800 rounded-md font-black text-[11px] w-full"
+                asChild>
+                <Link to={user ? '/dashboard' : '/auth'} onClick={() => setMobileOpen(false)}>
+                  {ctaText}
+                </Link>
+              </Button>
+            </div>
           </nav>
         </div>
       )}

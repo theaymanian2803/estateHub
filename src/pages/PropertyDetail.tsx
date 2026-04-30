@@ -1,41 +1,37 @@
-import { useParams, Link } from 'react-router-dom'
-import {
-  ArrowLeft,
-  Bed,
-  Bath,
-  Maximize,
-  MapPin,
-  Heart,
-  Share2,
-  Calendar,
-  Eye,
-  User,
-  ChevronLeft,
-  ChevronRight,
-  Home,
-  Car,
-  Layers,
-  Thermometer,
-  Wind,
-  TreePine,
-  DollarSign,
-} from 'lucide-react'
-import { useState, useEffect } from 'react'
-import { useSaveProperty } from '@/hooks/useSaveProperty'
-import { Button } from '@/components/ui/button'
+import Footer from '@/components/Footer'
+import Lightbox from '@/components/Lightbox'
+import Navbar from '@/components/Navbar'
+import PropertyMap from '@/components/PropertyMap'
+import ReviewSection from '@/components/ReviewSection'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
+import { formatPrice, properties as mockProperties, type Property } from '@/data/mockData'
 import { useToast } from '@/hooks/use-toast'
-import Navbar from '@/components/Navbar'
-import Footer from '@/components/Footer'
-import ReviewSection from '@/components/ReviewSection'
-import PropertyMap from '@/components/PropertyMap'
-import Lightbox from '@/components/Lightbox'
-import MortgageCalculator from '@/components/MortgageCalculator'
-import { properties as mockProperties, formatPrice, type Property } from '@/data/mockData'
+import { useSaveProperty } from '@/hooks/useSaveProperty'
 import { supabase } from '@/integrations/supabase/client'
+import {
+  ArrowLeft,
+  Bath,
+  Bed,
+  Calendar,
+  Car,
+  Eye,
+  Heart,
+  Home,
+  Layers,
+  MapPin,
+  Maximize,
+  Share2,
+  Thermometer,
+  TreePine,
+  User,
+  Wind,
+} from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Link, useParams } from 'react-router-dom'
 
 interface ExtendedProperty extends Property {
   lot_size?: number
@@ -91,11 +87,9 @@ export default function PropertyDetail() {
     const fetchPropertyAndReviews = async () => {
       if (!id) return
 
-      // 1. Check if the ID is a valid Supabase UUID format
       const isUuid =
         /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id)
 
-      // Helper function for mock fallback
       const useMockData = () => {
         const mock = mockProperties.find((p) => p.id === id)
         if (mock) setProperty({ ...mock, latitude: null, longitude: null })
@@ -104,7 +98,6 @@ export default function PropertyDetail() {
 
       if (isUuid) {
         try {
-          // 2. Fetch Real Property from Supabase
           const { data: propData, error: propError } = await supabase
             .from('properties')
             .select('*')
@@ -153,7 +146,6 @@ export default function PropertyDetail() {
             })
           }
 
-          // 3. Fetch Real Reviews from Supabase
           const { data: revData, error: revError } = await supabase
             .from('reviews')
             .select('*, profiles(full_name)')
@@ -178,7 +170,6 @@ export default function PropertyDetail() {
           useMockData()
         }
       } else {
-        // ID is not a UUID (It's a mock property like "1", "2")
         useMockData()
       }
     }
@@ -203,7 +194,6 @@ export default function PropertyDetail() {
 
   useEffect(() => {
     if (id) {
-      // Only try to increment views if it's a valid Supabase UUID
       const isUuid =
         /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id)
       if (isUuid) {
@@ -227,7 +217,6 @@ export default function PropertyDetail() {
     )
   }
 
-  const hasMultipleImages = property.images.length > 1
   const hasCoords = property.latitude != null && property.longitude != null
 
   const handleContact = async (e: React.FormEvent) => {
@@ -296,54 +285,24 @@ export default function PropertyDetail() {
           <ArrowLeft className="h-4 w-4" /> {t('property.backToSearch')}
         </Link>
 
-        <div className="relative mt-2 overflow-hidden rounded-xl">
-          <img
-            src={property.images[currentImage]}
-            alt={property.title}
-            className="aspect-[16/7] w-full object-cover cursor-zoom-in"
-            onClick={() => setLightboxOpen(true)}
-          />
-          {hasMultipleImages && (
-            <>
-              <button
-                onClick={() =>
-                  setCurrentImage((prev) => (prev === 0 ? property.images.length - 1 : prev - 1))
-                }
-                className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-card/80 p-2 backdrop-blur-sm transition-colors hover:bg-card">
-                <ChevronLeft className="h-5 w-5 text-foreground" />
-              </button>
-              <button
-                onClick={() =>
-                  setCurrentImage((prev) => (prev === property.images.length - 1 ? 0 : prev + 1))
-                }
-                className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-card/80 p-2 backdrop-blur-sm transition-colors hover:bg-card">
-                <ChevronRight className="h-5 w-5 text-foreground" />
-              </button>
-              <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-1.5">
-                {property.images.map((_, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setCurrentImage(i)}
-                    className={`h-2 w-2 rounded-full transition-colors ${i === currentImage ? 'bg-accent' : 'bg-card/60'}`}
-                  />
-                ))}
-              </div>
-            </>
-          )}
+        {/* Replaced Carousel with Image Grid */}
+        <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+          {property.images.map((img, i) => (
+            <div
+              key={i}
+              className="relative overflow-hidden rounded-xl aspect-[4/3] group cursor-zoom-in"
+              onClick={() => {
+                setCurrentImage(i)
+                setLightboxOpen(true)
+              }}>
+              <img
+                src={img}
+                alt={`${property.title} - View ${i + 1}`}
+                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+              />
+            </div>
+          ))}
         </div>
-
-        {hasMultipleImages && (
-          <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
-            {property.images.map((img, i) => (
-              <button
-                key={i}
-                onClick={() => setCurrentImage(i)}
-                className={`h-16 w-24 flex-shrink-0 overflow-hidden rounded-md border-2 transition-colors ${i === currentImage ? 'border-accent' : 'border-transparent opacity-70 hover:opacity-100'}`}>
-                <img src={img} alt={`View ${i + 1}`} className="h-full w-full object-cover" />
-              </button>
-            ))}
-          </div>
-        )}
 
         <div className="mt-8 grid gap-8 lg:grid-cols-3">
           <div className="lg:col-span-2 space-y-8">
@@ -503,8 +462,6 @@ export default function PropertyDetail() {
                 </div>
               </div>
             )}
-
-            {/* <MortgageCalculator propertyPrice={property.price} /> */}
 
             <ReviewSection reviews={propertyReviews} propertyId={property.id} />
           </div>

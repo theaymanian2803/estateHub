@@ -1,22 +1,10 @@
-import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import {
-  LayoutDashboard,
-  Users,
-  Home,
-  Plus,
-  Trash2,
-  Shield,
-  Eye,
-  CheckCircle,
-  XCircle,
-  Clock,
-  Settings2,
-  Layout,
-  Mail,
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import AdminInquiries from '@/components/AdminInquiries'
+import AdminLandingControls from '@/components/AdminLandingControls'
+import AdminListingControls from '@/components/AdminListingControls'
+import Navbar from '@/components/Navbar'
+import PropertyForm from '@/components/PropertyForm'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import {
   Table,
   TableBody,
@@ -25,17 +13,29 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { useToast } from '@/hooks/use-toast'
-import { useAuth } from '@/hooks/useAuth'
-import { useAdmin } from '@/hooks/useAdmin'
-import { supabase } from '@/integrations/supabase/client'
-import Navbar from '@/components/Navbar'
 import { formatPrice } from '@/data/mockData'
-import PropertyForm from '@/components/PropertyForm'
-import AdminListingControls from '@/components/AdminListingControls'
-import AdminLandingControls from '@/components/AdminLandingControls'
-import AdminInquiries from '@/components/AdminInquiries'
+import { useToast } from '@/hooks/use-toast'
+import { useAdmin } from '@/hooks/useAdmin'
+import { useAuth } from '@/hooks/useAuth'
+import { supabase } from '@/integrations/supabase/client'
+import {
+  CheckCircle,
+  Clock,
+  Eye,
+  Home,
+  Layout,
+  LayoutDashboard,
+  Mail,
+  Plus,
+  Settings2,
+  Shield,
+  Trash2,
+  Users,
+  XCircle,
+} from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
 
 type Tab =
   | 'overview'
@@ -100,7 +100,7 @@ export default function AdminDashboard() {
 
   const handleApprove = async (id: string) => {
     const { error } = await supabase.from('properties').update({ status: 'active' }).eq('id', id)
-    if (error) toast({ title: 'Error', description: error.message, variant: 'destructive' })
+    if (error) toast({ title: 'Erreur', description: error.message, variant: 'destructive' })
     else {
       toast({ title: t('admin.propertyApproved'), description: t('admin.listingNowLive') })
       setAllProperties((prev) => prev.map((p) => (p.id === id ? { ...p, status: 'active' } : p)))
@@ -109,7 +109,7 @@ export default function AdminDashboard() {
 
   const handleReject = async (id: string) => {
     const { error } = await supabase.from('properties').update({ status: 'rejected' }).eq('id', id)
-    if (error) toast({ title: 'Error', description: error.message, variant: 'destructive' })
+    if (error) toast({ title: 'Erreur', description: error.message, variant: 'destructive' })
     else {
       toast({ title: t('admin.propertyRejected'), variant: 'destructive' })
       setAllProperties((prev) => prev.map((p) => (p.id === id ? { ...p, status: 'rejected' } : p)))
@@ -127,7 +127,7 @@ export default function AdminDashboard() {
     const { error } = await supabase
       .from('properties')
       .insert({ user_id: user.id, ...formData, status: 'active' })
-    if (error) toast({ title: 'Error', description: error.message, variant: 'destructive' })
+    if (error) toast({ title: 'Erreur', description: error.message, variant: 'destructive' })
     else {
       toast({ title: t('admin.propertyCreated') })
       await refreshData()
@@ -148,7 +148,7 @@ export default function AdminDashboard() {
         return (
           <Badge variant="secondary" className="bg-accent/10 text-accent">
             <CheckCircle className="mr-1 h-3 w-3" />
-            Active
+            Actif
           </Badge>
         )
       case 'rejected':
@@ -171,12 +171,12 @@ export default function AdminDashboard() {
       icon: Clock,
       count: pendingProperties.length,
     },
-    { id: 'inquiries', label: 'Inquiries', icon: Mail },
+    { id: 'inquiries', label: 'Demandes', icon: Mail },
     { id: 'properties', label: t('admin.allProperties'), icon: Home },
     { id: 'users', label: t('admin.users'), icon: Users },
     { id: 'add-property', label: t('admin.addProperty'), icon: Plus },
-    { id: 'listing-controls', label: 'Listing Controls', icon: Settings2 },
-    { id: 'landing-page', label: 'Landing Page', icon: Layout },
+    { id: 'listing-controls', label: 'Contrôles des annonces', icon: Settings2 },
+    { id: 'landing-page', label: "Page d'accueil", icon: Layout },
   ]
 
   if (authLoading || adminLoading || !isAdmin) return null

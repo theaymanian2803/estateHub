@@ -1,39 +1,37 @@
-import { useState, useMemo, useEffect, useCallback } from 'react'
-import { useSearchParams } from 'react-router-dom'
-import {
-  SlidersHorizontal,
-  X,
-  Map,
-  LayoutGrid,
-  Columns2,
-  PanelLeftClose,
-  PanelLeftOpen,
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Checkbox } from '@/components/ui/checkbox'
-import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
+import Navbar from '@/components/Navbar'
 import PropertyCard from '@/components/PropertyCard'
-import SearchMapView from '@/components/SearchMapView'
 import SavedSearches, { type SearchFilters } from '@/components/SavedSearches'
+import SearchMapView from '@/components/SearchMapView'
+import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Input } from '@/components/ui/input'
 import { properties as mockProperties, type Property } from '@/data/mockData'
 import { supabase } from '@/integrations/supabase/client'
-import { useTranslation } from 'react-i18next'
+import {
+  Columns2,
+  LayoutGrid,
+  Map,
+  PanelLeftClose,
+  PanelLeftOpen,
+  SlidersHorizontal,
+  X,
+} from 'lucide-react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 
 const allAmenities = [
-  'Pool',
-  'Garden',
+  'Piscine',
+  'Jardin',
   'Garage',
-  'Fireplace',
-  'Smart Home',
-  'Terrace',
-  'Gym',
+  'Cheminée',
+  'Maison intelligente',
+  'Terrasse',
+  'Salle de sport',
   'Concierge',
 ]
 
 export default function SearchPage() {
-  const { t } = useTranslation()
   const [searchParams] = useSearchParams()
   const [filtersOpen, setFiltersOpen] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(true)
@@ -70,14 +68,14 @@ export default function SearchPage() {
           beds: d.beds || 0,
           baths: d.baths || 0,
           sqft: d.sqft || 0,
-          type: (d.type as Property['type']) || 'House',
+          type: (d.type as Property['type']) || 'Maison',
           amenities: d.amenities || [],
           images: d.images && d.images.length > 0 ? d.images : ['/placeholder.svg'],
           featured: d.featured || false,
           latitude: d.latitude ?? undefined,
           longitude: d.longitude ?? undefined,
           sellerId: d.user_id,
-          sellerName: 'Owner',
+          sellerName: 'Propriétaire',
           createdAt: new Date(d.created_at).toLocaleDateString(),
           views: d.views || 0,
         }))
@@ -149,14 +147,12 @@ export default function SearchPage() {
   const FilterPanel = () => (
     <div className="space-y-6">
       <div>
-        <label className="mb-2 block text-sm font-semibold text-foreground">
-          {t('search.sortByPrice')}
-        </label>
+        <label className="mb-2 block text-sm font-semibold text-foreground">Trier par prix</label>
         <div className="flex gap-2">
           {[
-            { value: 'none' as const, label: t('search.default') },
-            { value: 'asc' as const, label: t('search.lowToHigh') },
-            { value: 'desc' as const, label: t('search.highToLow') },
+            { value: 'none' as const, label: 'Par défaut' },
+            { value: 'asc' as const, label: 'Prix croissant' },
+            { value: 'desc' as const, label: 'Prix décroissant' },
           ].map(({ value, label }) => (
             <button
               key={value}
@@ -170,12 +166,12 @@ export default function SearchPage() {
 
       <div>
         <label className="mb-2 block text-sm font-semibold text-foreground">
-          {t('search.priceRange')}
+          Fourchette de prix
         </label>
         <div className="flex items-center gap-2">
           <Input
             type="number"
-            placeholder={t('search.min')}
+            placeholder="Min"
             value={minPrice}
             onChange={(e) => setMinPrice(e.target.value.slice(0, 10))}
             min={0}
@@ -184,7 +180,7 @@ export default function SearchPage() {
           <span className="text-muted-foreground">–</span>
           <Input
             type="number"
-            placeholder={t('search.max')}
+            placeholder="Max"
             value={maxPrice}
             onChange={(e) => setMaxPrice(e.target.value.slice(0, 10))}
             min={0}
@@ -194,16 +190,14 @@ export default function SearchPage() {
       </div>
 
       <div>
-        <label className="mb-2 block text-sm font-semibold text-foreground">
-          {t('search.bedroomsMin')}
-        </label>
+        <label className="mb-2 block text-sm font-semibold text-foreground">Chambres (Min)</label>
         <div className="flex gap-2">
           {[0, 1, 2, 3, 4, 5].map((n) => (
             <button
               key={n}
               onClick={() => setBeds(n)}
               className={`rounded-md border px-3 py-1.5 text-sm transition-colors ${beds === n ? 'border-accent bg-accent text-accent-foreground' : 'border-border text-muted-foreground hover:border-accent'}`}>
-              {n === 0 ? t('search.any') : `${n}+`}
+              {n === 0 ? 'Tous' : `${n}+`}
             </button>
           ))}
         </div>
@@ -211,7 +205,7 @@ export default function SearchPage() {
 
       <div>
         <label className="mb-2 block text-sm font-semibold text-foreground">
-          {t('search.bathroomsMin')}
+          Salles de bain (Min)
         </label>
         <div className="flex gap-2">
           {[0, 1, 2, 3, 4].map((n) => (
@@ -219,7 +213,7 @@ export default function SearchPage() {
               key={n}
               onClick={() => setBaths(n)}
               className={`rounded-md border px-3 py-1.5 text-sm transition-colors ${baths === n ? 'border-accent bg-accent text-accent-foreground' : 'border-border text-muted-foreground hover:border-accent'}`}>
-              {n === 0 ? t('search.any') : `${n}+`}
+              {n === 0 ? 'Tous' : `${n}+`}
             </button>
           ))}
         </div>
@@ -227,24 +221,22 @@ export default function SearchPage() {
 
       <div>
         <label className="mb-2 block text-sm font-semibold text-foreground">
-          {t('search.propertyType')}
+          Type de propriété
         </label>
         <div className="flex flex-wrap gap-2">
-          {['', 'House', 'Apartment', 'Condo', 'Townhouse', 'Villa'].map((tp) => (
+          {['', 'Maison', 'Appartement', 'Condo', 'Maison de ville', 'Villa'].map((tp) => (
             <button
               key={tp}
               onClick={() => setSelectedType(tp)}
               className={`rounded-md border px-3 py-1.5 text-sm transition-colors ${selectedType === tp ? 'border-accent bg-accent text-accent-foreground' : 'border-border text-muted-foreground hover:border-accent'}`}>
-              {tp || t('search.all')}
+              {tp || 'Tous'}
             </button>
           ))}
         </div>
       </div>
 
       <div>
-        <label className="mb-2 block text-sm font-semibold text-foreground">
-          {t('search.amenities')}
-        </label>
+        <label className="mb-2 block text-sm font-semibold text-foreground">Équipements</label>
         <div className="grid grid-cols-2 gap-2">
           {allAmenities.map((a) => (
             <label
@@ -266,7 +258,7 @@ export default function SearchPage() {
           size="sm"
           onClick={clearAllFilters}
           className="w-full mt-2 text-destructive border-destructive/30 hover:bg-destructive/10 hover:text-destructive">
-          <X className="mr-1 h-4 w-4" /> {t('search.clearAllFilters')}
+          <X className="mr-1 h-4 w-4" /> Effacer tous les filtres
         </Button>
       )}
 
@@ -280,13 +272,12 @@ export default function SearchPage() {
     <div className="min-h-screen bg-background">
       <Navbar />
       <div className="container mx-auto px-4 pb-16 pt-24">
-        {/* CSS FIX APPLIED HERE: Added flex-col on mobile, flex-row on md */}
         <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
-            <h1 className="font-display text-3xl font-bold text-foreground">{t('search.title')}</h1>
-            <p className="text-sm text-muted-foreground">
-              {filtered.length} {t('search.propertiesFound')}
-            </p>
+            <h1 className="font-display text-3xl font-bold text-foreground">
+              Recherche de propriétés
+            </h1>
+            <p className="text-sm text-muted-foreground">{filtered.length} propriétés trouvées</p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <Button
@@ -294,12 +285,12 @@ export default function SearchPage() {
               size="sm"
               className="md:hidden"
               onClick={() => setFiltersOpen((o) => !o)}>
-              <SlidersHorizontal className="mr-1 h-4 w-4" /> {t('search.filters')}
+              <SlidersHorizontal className="mr-1 h-4 w-4" /> Filtres
             </Button>
             {[
-              { mode: 'grid' as const, icon: LayoutGrid, label: t('search.grid') },
-              { mode: 'split' as const, icon: Columns2, label: t('search.split') },
-              { mode: 'map' as const, icon: Map, label: t('search.map') },
+              { mode: 'grid' as const, icon: LayoutGrid, label: 'Grille' },
+              { mode: 'split' as const, icon: Columns2, label: 'Mixte' },
+              { mode: 'map' as const, icon: Map, label: 'Carte' },
             ].map(({ mode, icon: Icon, label }) => (
               <Button
                 key={mode}
@@ -318,13 +309,11 @@ export default function SearchPage() {
             <aside className="hidden w-80 min-w-[20rem] max-w-[20rem] shrink-0 transition-all duration-300 md:block">
               <div className="sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto rounded-lg border border-border bg-card p-5">
                 <div className="mb-4 flex items-center justify-between">
-                  <h3 className="font-display text-lg font-semibold text-foreground">
-                    {t('search.filters')}
-                  </h3>
+                  <h3 className="font-display text-lg font-semibold text-foreground">Filtres</h3>
                   <button
                     onClick={() => setSidebarOpen(false)}
                     className="rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-                    title="Hide filters">
+                    title="Masquer les filtres">
                     <PanelLeftClose className="h-4 w-4" />
                   </button>
                 </div>
@@ -336,7 +325,7 @@ export default function SearchPage() {
             <button
               onClick={() => setSidebarOpen(true)}
               className="hidden md:flex sticky top-24 h-fit items-center gap-1 rounded-md border border-border bg-card px-2 py-2 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-              title="Show filters">
+              title="Afficher les filtres">
               <PanelLeftOpen className="h-4 w-4" />
             </button>
           )}
@@ -349,7 +338,7 @@ export default function SearchPage() {
                 className="absolute bottom-0 left-0 right-0 max-h-[80vh] overflow-y-auto rounded-t-2xl bg-card p-6"
                 onClick={(e) => e.stopPropagation()}>
                 <div className="mb-4 flex items-center justify-between">
-                  <h3 className="font-display text-lg font-semibold">{t('search.filters')}</h3>
+                  <h3 className="font-display text-lg font-semibold">Filtres</h3>
                   <button onClick={() => setFiltersOpen(false)}>
                     <X className="h-5 w-5 text-muted-foreground" />
                   </button>
@@ -367,7 +356,7 @@ export default function SearchPage() {
                 <div className="md:w-1/2 md:overflow-y-auto md:pr-2">
                   {filtered.length === 0 ? (
                     <div className="py-20 text-center text-muted-foreground">
-                      {t('search.noProperties')}
+                      Aucune propriété trouvée.
                     </div>
                   ) : (
                     <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2">
@@ -383,7 +372,7 @@ export default function SearchPage() {
               </div>
             ) : filtered.length === 0 ? (
               <div className="py-20 text-center text-muted-foreground">
-                {t('search.noPropertiesTry')}
+                Aucune propriété ne correspond à vos filtres. Essayez de les ajuster.
               </div>
             ) : (
               <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
